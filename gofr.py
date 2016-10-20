@@ -23,10 +23,6 @@ class Gofr(object):
     tau = []
     names_of_atoms = []
   
-    # Corresponds to the first atom
-    isp1 = []
-    # Corresponds to the second atom
-    isp2 = []
     line_index = 0
   
     # Store the file contents in the list
@@ -35,6 +31,14 @@ class Gofr(object):
 
     # Read the number of atoms in the first line
     number_atoms = int(file_content[line_index])
+    # Corresponds to the first atom
+    isp1 = [0] * number_atoms
+    # Corresponds to the second atom
+    isp2 = [0] * number_atoms
+    
+    species_1_count = 0
+    species_2_count = 0
+    
     line_index += 1
   
     nbin = (int) (rmax / dr)
@@ -75,13 +79,16 @@ class Gofr(object):
     
         names_of_atoms.append(nm)
         if name1 in nm:
-          isp1.append(i)
+          isp1[species_1_count] = i
+          print(species_1_count)
+          species_1_count += 1
         if name2 in nm:
-          isp2.append(i)
+          isp2[species_2_count] = i
+          print(species_2_count)
+          species_2_count += 1
         
       print 'isp1 = ', len(isp1)
       print 'isp2 = ', len(isp2) 
-    
        
       for i in range(len(isp1)):
         for j in range(len(isp2)):
@@ -102,7 +109,6 @@ class Gofr(object):
     
       #print 'line_index = ' , line_index
       if line_index < len(file_content):
-        #print file_content[line_index-3: line_index+2]
         number_atoms = int(file_content[line_index])
         line_index += 1
   

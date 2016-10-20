@@ -45,7 +45,7 @@ class QboxOutputHandler(xml.sax.handler.ContentHandler):
       self.inPosition = 0
     elif name == "atomset":
       self.step += 1
-      output = str(len(self.tau)) + "*"
+      output = str(len(self.tau)) + "\n"
       avec = self.cell_a.split()
       bvec = self.cell_b.split()
       cvec = self.cell_c.split()
@@ -62,13 +62,13 @@ class QboxOutputHandler(xml.sax.handler.ContentHandler):
       '%.6f'%(a0*float(cvec[2]))
       
       #print temp
-      output += (' '.join(temp)) + "*"
+      output += (' '.join(temp)) + "\n"
       
       for i in range(len(self.tau)):
          test_string = self.atomname[i],'%.6f'%self.tau[i][0],\
                                '%.6f'%self.tau[i][1],\
                                '%.6f'%self.tau[i][2]
-         output += (' '.join(test_string)) + "*"
+         output += (' '.join(test_string)) + "\n"
       self.inAtomset = 0
       self.done_first = True
       self.output.append(output)
