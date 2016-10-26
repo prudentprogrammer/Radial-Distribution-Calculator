@@ -2,6 +2,7 @@ import unitcell
 import sys
 from math import sqrt, pi, pow
 import time
+import pprint
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -17,6 +18,7 @@ class Gofr(object):
     rmax = self.rmax
     dr = self.dr
     nconfig = 0
+    cum_counts = {}
   
     # This list holds the position of the atoms
     line_index = 0
@@ -71,10 +73,7 @@ class Gofr(object):
       
         nm = line_clean[0]
         d3_vec = [float(x) for x in line_clean[1:4]]
-        #print nm
-        #print d3_vec
         tau[i] = d3_vec
-        #print len(tau)
         if nconfig == 1:
           names_of_atoms.append(nm)
           if name1 in nm:
@@ -86,7 +85,6 @@ class Gofr(object):
       
           
       for i in range(species_1_count):
-        
         for j in range(species_2_count):
           first_vector = tau[isp1[i]]
           second_vector = tau[isp2[j]]
@@ -99,14 +97,19 @@ class Gofr(object):
           length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
          
           k = (int) (length_scaled_vec + 0.5)
+          #print k
           if k < nbin:
             count[k] += 1
+       
+      cum_counts[nconfig] = count 
+       
        
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
         line_index += 1
   
     print 'nconfig = ', nconfig
+    
   
     if species_1_count == 0:
       print ' no atoms %s found.' % name1
@@ -118,7 +121,9 @@ class Gofr(object):
     print '%d %s atoms found.' % (species_1_count, name1)
     print '%d %s atoms found.' % (species_2_count, name2)
   
-    print count
+    #print cum_counts
+    # Dump it to a file
+    
     # normalization differs for same species vs different species
     npairs = 0
     if name1 == name2:
