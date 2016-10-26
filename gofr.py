@@ -123,6 +123,14 @@ class Gofr(object):
   
     #print cum_counts
     # Dump it to a file
+    f = open('cum_count.txt','w+')
+    for key, val in cum_counts.items():
+      length = str(len(val))
+      step = str(key)
+      counts = '\n'.join([str(x) for x in val])
+      f.write('%s %s\n' % (length, step))
+      f.write('%s\n' % (counts))
+      f.write('\n\n')
     
     # normalization differs for same species vs different species
     npairs = 0
