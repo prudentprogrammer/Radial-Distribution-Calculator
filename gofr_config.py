@@ -1,6 +1,6 @@
 # Configuration file
 
-input_source = "./md120_short.r"
+input_source = "./md120.r"
 all_or_first = "a"
 
 first_molecule_name = "O"

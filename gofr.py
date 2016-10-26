@@ -1,7 +1,8 @@
 import unitcell
 import sys
 from math import sqrt, pi, pow
-
+import time
+import numpy as np
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -20,9 +21,6 @@ class Gofr(object):
     nconfig = 0
   
     # This list holds the position of the atoms
-    tau = []
-    names_of_atoms = []
-  
     line_index = 0
   
     # Store the file contents in the list
@@ -36,13 +34,18 @@ class Gofr(object):
     # Corresponds to the second atom
     isp2 = [0] * number_atoms
     
+    tau = [None] * number_atoms
+    names_of_atoms = [None] * number_atoms
+    #isp1 = []
+    #isp2 = []
+    
     species_1_count = 0
     species_2_count = 0
     
     line_index += 1
   
     nbin = (int) (rmax / dr)
-    print 'Number of bins = ', nbin
+    #print 'Number of bins = ', nbin
   
     count = [0.0] * nbin
     omega = 0.0
@@ -59,14 +62,15 @@ class Gofr(object):
       a0 = [float(x) for x in line_clean[1:4]]
       a1 = [float(x) for x in line_clean[4:7]]
       a2 = [float(x) for x in line_clean[7:10]]
-      print a0, a1, a2
+      #print a0, a1, a2
       line_index += 1
 
       uc = unitcell.UnitCell(a0, a1, a2)
       omega = uc.getVolume()
       print 'Number atoms = ' , number_atoms
       print 'Volume = ', omega
-    
+      
+      
       for i in range(number_atoms):
         line_clean = file_content[line_index].split()
         line_index += 1
@@ -75,38 +79,42 @@ class Gofr(object):
         d3_vec = [float(x) for x in line_clean[1:4]]
         #print nm
         #print d3_vec
-        tau.append(d3_vec)
-    
-        names_of_atoms.append(nm)
-        if name1 in nm:
-          isp1[species_1_count] = i
-          print(species_1_count)
-          species_1_count += 1
-        if name2 in nm:
-          isp2[species_2_count] = i
-          print(species_2_count)
-          species_2_count += 1
-        
-      print 'isp1 = ', len(isp1)
-      print 'isp2 = ', len(isp2) 
-       
-      for i in range(len(isp1)):
-        for j in range(len(isp2)):
+        tau[i] = d3_vec
+        #print len(tau)
+        if nconfig == 1:
+          names_of_atoms.append(nm)
+          if name1 in nm:
+            species_1_count += 1
+            isp1[species_1_count] = i
+          if name2 in nm:
+            species_2_count += 1
+            isp2[species_2_count] = i
+      
+          
+      #print 'isp1 = ', len(isp1)
+      #print 'isp2 = ', len(isp2) 
+      
+      for i in range(species_1_count):
+        start = time.time()
+        for j in range(species_2_count):
           first_vector = tau[isp1[i]]
           second_vector = tau[isp2[j]]
           difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
           #print 'diff = ', difference_vector
           difference_vector = uc.fold_in_ws(difference_vector)
           #print 'p = ', difference_vector
-        
           scaled_vec = [x / dr for x in difference_vector]
+          #x = np.array(scaled_vec)
+          #length_scaled_vec = np.linalg.norm(x)
           length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
           #print 'scaled vec = ', scaled_vec
           #print 'length scaled vec ', length_scaled_vec
           k = (int) (length_scaled_vec + 0.5)
           if k < nbin:
             count[k] += 1
-    
+        end = time.time()
+        print(start - end)
+      
       #print 'line_index = ' , line_index
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
@@ -114,22 +122,23 @@ class Gofr(object):
   
     print 'nconfig = ', nconfig
   
-    if len(isp1) == 0:
+    if species_1_count == 0:
       print ' no atoms %s found.' % name1
       sys.exit(1)
-    if len(isp2) == 0:
+    if species_2_count == 0:
       print ' no atoms %s found.' % name2
       sys.exit(1)
   
-    print '%d %s atoms found.' % (len(isp1), name1)
-    print '%d %s atoms found.' % (len(isp2), name2)
+    print '%d %s atoms found.' % (species_1_count, name1)
+    print '%d %s atoms found.' % (species_2_count, name2)
   
+    print count
     # normalization differs for same species vs different species
     npairs = 0
     if name1 == name2:
-      npairs = len(isp1) * (len(isp2) - 1)
+      npairs = species_1_count * (species_2_count - 1)
     else:
-      npairs = len(isp1) * len(isp2)
+      npairs = species_1_count * species_2_count
     
     for i in range(1, nbin):
       r = i * dr
@@ -143,7 +152,7 @@ class Gofr(object):
     n = 0.0
     for i in range(1, nbin):
       r = i * dr
-      n += count[i] / (len(isp1) * nconfig)
+      n += count[i] / (species_1_count * nconfig)
       print 'r, n = %s, %s' % (r, n)
     
 
