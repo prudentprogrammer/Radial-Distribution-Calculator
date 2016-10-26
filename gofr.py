@@ -2,7 +2,6 @@ import unitcell
 import sys
 from math import sqrt, pi, pow
 import time
-import numpy as np
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -11,7 +10,6 @@ class Gofr(object):
     self.name2 = name2
     self.rmax = rmax
     self.dr = dr
-    #print self.xyzInput
     
   def process(self):
     name1 = self.name1
@@ -24,7 +22,6 @@ class Gofr(object):
     line_index = 0
   
     # Store the file contents in the list
-    #file_content = [x.strip() for x in self.xyzInput]
     file_content = self.xyzInput
 
     # Read the number of atoms in the first line
@@ -36,8 +33,6 @@ class Gofr(object):
     
     tau = [None] * number_atoms
     names_of_atoms = [None] * number_atoms
-    #isp1 = []
-    #isp2 = []
     
     species_1_count = 0
     species_2_count = 0
@@ -45,7 +40,6 @@ class Gofr(object):
     line_index += 1
   
     nbin = (int) (rmax / dr)
-    #print 'Number of bins = ', nbin
   
     count = [0.0] * nbin
     omega = 0.0
@@ -62,7 +56,7 @@ class Gofr(object):
       a0 = [float(x) for x in line_clean[1:4]]
       a1 = [float(x) for x in line_clean[4:7]]
       a2 = [float(x) for x in line_clean[7:10]]
-      #print a0, a1, a2
+
       line_index += 1
 
       uc = unitcell.UnitCell(a0, a1, a2)
@@ -91,31 +85,23 @@ class Gofr(object):
             isp2[species_2_count] = i
       
           
-      #print 'isp1 = ', len(isp1)
-      #print 'isp2 = ', len(isp2) 
-      
       for i in range(species_1_count):
-        start = time.time()
+        
         for j in range(species_2_count):
           first_vector = tau[isp1[i]]
           second_vector = tau[isp2[j]]
           difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
-          #print 'diff = ', difference_vector
+          
           difference_vector = uc.fold_in_ws(difference_vector)
-          #print 'p = ', difference_vector
+          
           scaled_vec = [x / dr for x in difference_vector]
-          #x = np.array(scaled_vec)
-          #length_scaled_vec = np.linalg.norm(x)
+          
           length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
-          #print 'scaled vec = ', scaled_vec
-          #print 'length scaled vec ', length_scaled_vec
+         
           k = (int) (length_scaled_vec + 0.5)
           if k < nbin:
             count[k] += 1
-        end = time.time()
-        print(start - end)
-      
-      #print 'line_index = ' , line_index
+       
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
         line_index += 1
