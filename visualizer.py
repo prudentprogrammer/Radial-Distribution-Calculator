@@ -1,4 +1,4 @@
-class Visualizer(object):
+class visualizer(object):
 
   def __init__(self, data):
     self.data = data
@@ -17,9 +17,12 @@ class Visualizer(object):
             var data = google.visualization.arrayToDataTable(%s);
 
             var options = {
-              title: 'Company Performance',
+              title: 'Radius vs G(r)',
               curveType: 'function',
-              legend: { position: 'bottom' }
+              legend: { position: 'bottom' },
+              width: 1200,
+              height: 600,
+              pointSize: 2
             };
 
             var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
@@ -29,9 +32,11 @@ class Visualizer(object):
         </script>
       </head>
       <body>
-        <div id="curve_chart" style="width: 900px; height: 500px"></div>
+        <div id="curve_chart"></div>
       </body>
     </html>
-    """ % self.data
-  
+    """ % str(self.data)
+    
+    f = open('sample_graph.html','w+')
+    f.write(htmlString)
 

@@ -3,6 +3,7 @@ import sys
 from math import sqrt, pi, pow
 import time
 import pprint
+from visualizer import visualizer
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -139,6 +140,12 @@ class Gofr(object):
     else:
       npairs = species_1_count * species_2_count
     
+    
+    visual_data = []
+    initial_data = ['Radius', 'G(r)']
+    visual_data.append(initial_data)
+    
+    
     for i in range(1, nbin):
       r = i * dr
       rmin = (i - 0.5) * dr
@@ -146,7 +153,13 @@ class Gofr(object):
       vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
       count_id = vshell * nconfig * npairs / omega
       g = count[i] / count_id
+      temp_data = [r, g]
+      visual_data.append(temp_data)
       print r, g
+  
+    vis_obj = visualizer(visual_data) 
+    vis_obj.generateVisualFile()
+    print ('Done generating visual file!')
   
     n = 0.0
     for i in range(1, nbin):
