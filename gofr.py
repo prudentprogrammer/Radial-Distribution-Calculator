@@ -64,8 +64,8 @@ class Gofr(object):
 
       uc = unitcell.UnitCell(a0, a1, a2)
       omega = uc.getVolume()
-      print 'Number atoms = ' , number_atoms
-      print 'Volume = ', omega
+      #print 'Number atoms = ' , number_atoms
+      #print 'Volume = ', omega
       
       
       for i in range(number_atoms):
@@ -124,14 +124,7 @@ class Gofr(object):
   
     #print cum_counts
     # Dump it to a file
-    f = open('cum_count.txt','w+')
-    for key, val in cum_counts.items():
-      length = str(len(val))
-      step = str(key)
-      counts = '\n'.join([str(x) for x in val])
-      f.write('%s %s\n' % (length, step))
-      f.write('%s\n' % (counts))
-      f.write('\n\n')
+    
     
     # normalization differs for same species vs different species
     npairs = 0
@@ -142,25 +135,39 @@ class Gofr(object):
     
     
     visual_data = []
-    initial_data = ['Radius', 'G(r)']
+    initial_data = ['NConfig', 'Radius', 'G(r)']
     visual_data.append(initial_data)
-    
-    
-    for i in range(1, nbin):
-      r = i * dr
-      rmin = (i - 0.5) * dr
-      rmax = (i + 0.5) * dr
-      vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
-      count_id = vshell * nconfig * npairs / omega
-      g = count[i] / count_id
-      temp_data = [r, g]
-      visual_data.append(temp_data)
-      print r, g
-  
+    counter = 0
+    for key, val in cum_counts.items():
+      #nth_config = []
+      for i in range(1, nbin):
+        r = i * dr
+        rmin = (i - 0.5) * dr
+        rmax = (i + 0.5) * dr
+        vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
+        count_id = vshell * nconfig * npairs / omega
+        g = val[i] / count_id
+        temp_data = [counter, r, g]
+        #nth_config.append(temp_data)
+        #print r, g
+        visual_data.append(temp_data)
+      counter += 1
     vis_obj = visualizer(visual_data) 
     vis_obj.generateVisualFile()
     print ('Done generating visual file!')
-  
+    #pprint.pprint(visual_data)
+    #f = open('cum_count.txt','w+')
+    #data_string = pprint.pformat(visual_data)
+    #f.write(data_string)
+    # for key, val in cum_counts.items():
+#       length = str(len(val))
+#       step = str(key)
+#       counts = '\n'.join([str(x) for x in val])
+#       f.write('%s %s\n' % (length, step))
+#       f.write('%s\n' % (counts))
+#       f.write('\n\n')
+    
+    
     n = 0.0
     for i in range(1, nbin):
       r = i * dr
