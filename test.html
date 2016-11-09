@@ -20,28 +20,28 @@
 
             // Create our data table.
             var data = google.visualization.arrayToDataTable([
-['NConfig', 'Radius', 'G(r)'],
- [0, 4.4, 2],
- [0, 4.45, 3],
- [0, 4.5, 4],
- [0, 4.55, 5],
- [0, 4.6, 10],
- [1, 4.4, 3],
- [1, 4.45, 6],
- [1, 4.5, 9],
- [1, 4.55, 6],
- [1, 4.6, 5],
- [2, 4.4, 10],
- [2, 4.45, 8],
- [2, 4.5, 6],
- [2, 4.55, 4],
- [2, 4.6, 2],
- [3, 4.4, 5],
- [3, 4.45, 4],
- [3, 4.5, 3],
- [3, 4.55, 2],
- [3, 4.6, 1]
-]);
+            ['NConfig', 'Radius', 'G(r)'],
+             [0, 4.4, 2],
+             [0, 4.45, 3],
+             [0, 4.5, 4],
+             [0, 4.55, 5],
+             [0, 4.6, 10],
+             [1, 4.4, 3],
+             [1, 4.45, 6],
+             [1, 4.5, 9],
+             [1, 4.55, 6],
+             [1, 4.6, 5],
+             [2, 4.4, 10],
+             [2, 4.45, 8],
+             [2, 4.5, 6],
+             [2, 4.55, 4],
+             [2, 4.6, 2],
+             [3, 4.4, 5],
+             [3, 4.45, 4],
+             [3, 4.5, 3],
+             [3, 4.55, 2],
+             [3, 4.6, 1]
+            ]);
 
             // Create a dashboard.
             var dashboard = new google.visualization.Dashboard(
@@ -56,16 +56,16 @@
               }
             });
             
-            var myLine = new google.visualization.ChartWrapper({
-                'chartType' : 'LineChart',
-                'containerId' : 'chart_div',
-                'view': {'columns': [1, 2]},
-                'width': 1200,
-                'height':1200
-            });
-            //console.log(donutRangeSlider);
-            // Create a pie chart, passing some options
-           
+            // var myLine = new google.visualization.ChartWrapper({
+    //             'chartType' : 'LineChart',
+    //             'containerId' : 'chart_div',
+    //             'view': {'columns': [1, 2]},
+    //             'width': 1200,
+    //             'height':1200
+    //         });
+
+var myLine = new google.visualization.LineChart(document.getElementById('chart_div'));
+            
             
             var myTable = new google.visualization.ChartWrapper({
                'chartType' : 'Table',
@@ -79,89 +79,69 @@
             // Establish dependencies, declaring that 'filter' drives 'pieChart',
             // so that the pie chart will only display entries that are let through
             // given the chosen slider range.
-            dashboard.bind(donutRangeSlider, myLine);
-
-
-
-           
-            
-            
+            //dashboard.bind(donutRangeSlider, myLine);
             
             // Draw the dashboard.
+            //myLine.draw(data);
             dashboard.draw(data);
             
-            function setChartRows () {
-                    var dt = myTable.getDataTable();
-                    var rows = dt.getNumberOfRows();
-                    //console.log(dt);
-                    //console.log(rows);
-                    columnObj = dt.getColumnRange(0);
-                    console.log('Max is : ' + columnObj.max);
-                    console.log('Min is: ' + columnObj.min);
-                    
-                    
-                    leftSliderRows = dt.getFilteredRows([{column : 0, value: columnObj.min}]);
-                    rightSliderRows = dt.getFilteredRows([{column : 0, value: columnObj.max}])
-                    console.log("left slider rows are " + leftSliderRows);
-                    console.log("right slider rows are " + rightSliderRows);
-                    
-                    var test = [];
-                    for(var i = 0; i < leftSliderRows.length; i++) {
-                      rightSliderValues = dt.getValue(rightSliderRows[i], 2);
-                      leftSliderValues =  dt.getValue(leftSliderRows[i], 2);
-                      //console.log(typeof leftSliderValues);
-                      //console.log(typeof rightSliderValues);
-                      //var string_val = (""+rightSliderValues) + " - " + ("" + leftSliderValues);
-                      //test.push([string_val, dt.getValue(rightSliderRows[i], 1), rightSliderValues - leftSliderValues]);
-                      test.push(rightSliderValues - leftSliderValues);
-                      //console.log(leftSliderValues);
-                      //console.log(rightSliderValues);
-                      //console.log("Difference baby is : " + rightSliderValues - leftSliderValues);
-                    }
-                    
-                    
-                    test = [3, 4, 5, 6, 7];
-                    console.log(test);
-                    
-                    /*
-                    var stuff = {};
-                    
-                    for(var i = 0; i < rows; i++) {
-                      radius = dt.getValue(i, 1);
-                      if(!stuff[radius])
-                        stuff[radius] = dt.getValue(i, 2);
-                      else
-                        stuff[radius] += dt.getValue(i, 2);
-                      console.log("Stuff is : " + dt.getValue(i, 2));
-                      
-                      
-                      
-                    }*/
-                    
-                    
-                    //console.log(stuff);
-                    /*var distinct_values = dt.getDistinctValues(0);
-        
-                    var arRows = [];
-                    for (var ii=0; ii<distinct_values.length; ii++){
-                               for (var jj=0; jj<rows; jj++){
-                                   var curr_stat = dt.getValue(jj,0);
-                                   if (curr_stat == distinct_values[ii]){
-                                       arRows.push(jj);
-                                       break;
-                                   }
-                               }
-                           }*/
-                    var view = myLine.getView() || {};
-                    view.rows = test;
-                    myLine.setView(view);
-                    myLine.draw();
-                }
-    
-                google.visualization.events.addListener(myTable, 'ready', setChartRows);
             
+            google.visualization.events.addListener(donutRangeSlider, 'ready', setInitialState);
+            google.visualization.events.addListener(donutRangeSlider, 'statechange', setInitialState);
+            
+            function setInitialState() {
+              
+              var columnsTable = new google.visualization.DataTable();
+              //columnsTable.addColumn('number', 'nconfig');
+              columnsTable.addColumn('number', 'Radius');
+              columnsTable.addColumn('number', 'G(r)');
+              
+ 
+              console.log("Data HAS " + data.getNumberOfRows() + " rows");
+              var sliderState = donutRangeSlider.getState();
+              
+              // var view = {
+              //   columns: [1,2]
+              // };
+              //console.log("The left slider has value " + sliderState.lowValue);
+              //console.log("The right slider has value " + sliderState.highValue);
+              var leftValue = sliderState.lowValue;
+              var rightValue = sliderState.highValue;
+              
+            
+              // Corresponds to indices in original data Ex:- [5, 6, 7, 8, 9]
+              var left_nconfigs = data.getFilteredRows([{column : 0, value: leftValue}]);
+              var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
+              //console.log(left_nconfigs);
+              //console.log(right_nconfigs);
+              //console.log("FINE HERE");
+              var test = [];
+              for(var i = 0; i < left_nconfigs.length; i++) {
+                var right_gofr = data.getValue(right_nconfigs[i], 2);
+                var left_gofr =  data.getValue(left_nconfigs[i], 2);  
+                columnsTable.addRow([data.getValue(left_nconfigs[i], 1), right_gofr-left_gofr]);
+                //columnsTable.addRow([right_gofr-left_gofr]);
+                //view.columns.push([0, data.getValue(left_nconfigs[i], 1), right_gofr - left_gofr]);
+                //view.columns.push(left_nconfigs[i]);
+                //getColumnLabel(i)
+                //console.log(right_gofr);
+                //console.log(left_gofr);
+                console.log(data.getValue(left_nconfigs[i], 1) + ", " + (right_gofr-left_gofr));
+              }
+              console.log(columnsTable);
+              //var view = new google.visualization.DataView(columnsTable);
+              //view.setColumns([1, 2]);
+              //console.log(view.getViewColumns());
+              //myLine.setView(view);
+              myLine.draw(columnsTable, { pointSize: 5 });
+              //myLine.setView()
+              //test.push()
+            }
             
           }
+          
+          
+          
         </script>
       </head>
 
@@ -172,7 +152,7 @@
           <div id="filter_div"></div>
           <div id="chart_div"></div>
           <div id="display"></div>
-          <div id="table_div" style="width: 1200; height: 1200;"><!-- Table renders here --></div>
+          <div id="table_div"><!-- Table renders here --></div>
           
         </div>
       </body>
