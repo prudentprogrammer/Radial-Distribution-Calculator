@@ -11,8 +11,6 @@ class visualizer(object):
       <head>
         <!--Load the AJAX API-->
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
         <script type="text/javascript">
 
           // Load the Visualization API and the controls package.
@@ -30,8 +28,7 @@ class visualizer(object):
             var data = google.visualization.arrayToDataTable(%s);
 
             // Create a dashboard.
-            var dashboard = new google.visualization.Dashboard(
-                document.getElementById('dashboard_div'));
+            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
 
             // Create a range slider, passing some options
             var nConfigSlider = new google.visualization.ControlWrapper({
@@ -46,13 +43,10 @@ class visualizer(object):
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
                 'view': {'columns': [1, 2]},
-                'width': 1200,
-                'height':1200
+                'options': {'title': 'Radius vs G(r) Difference', width: 1200, height: 800, pointSize: 5, lineWidth: 2},
+                'dataTable': data
             });
-            //console.log(donutRangeSlider);
-            // Create a pie chart, passing some options
            
-            
             var myTable = new google.visualization.ChartWrapper({
                'chartType' : 'Table',
                'containerId' : 'table_div',
@@ -70,6 +64,34 @@ class visualizer(object):
             // Draw the dashboard.
             dashboard.draw(data);
             
+            google.visualization.events.addListener(nConfigSlider, 'ready', setInitialState);
+            google.visualization.events.addListener(nConfigSlider, 'statechange', setInitialState);
+            
+            function setInitialState() {
+              // Temporary Filtered Table
+              var columnsTable = new google.visualization.DataTable();
+              columnsTable.addColumn('number', 'nconfig');
+              columnsTable.addColumn('number', 'Radius');
+              columnsTable.addColumn('number', 'G(r)');
+              
+              // Get Slider Information
+              var sliderState = nConfigSlider.getState();
+              var leftValue = sliderState.lowValue;
+              var rightValue = sliderState.highValue;
+              
+            
+              // Corresponds to indices in original data Ex:- [5, 6, 7, 8, 9]
+              var left_nconfigs = data.getFilteredRows([{column : 0, value: leftValue}]);
+              var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
+              
+              for(var i = 0; i < left_nconfigs.length; i++) {
+                var right_gofr = data.getValue(right_nconfigs[i], 2);
+                var left_gofr =  data.getValue(left_nconfigs[i], 2);  
+                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),right_gofr-left_gofr]);
+              }
+              myLine.setDataTable(columnsTable);
+              myLine.draw();
+            }
             
           }
         </script>

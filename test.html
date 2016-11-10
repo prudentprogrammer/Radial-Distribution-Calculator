@@ -5,6 +5,10 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script> -->
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
+        <!-- <link rel="stylesheet" href="test.css"> -->
         <script type="text/javascript">
 
           // Load the Visualization API and the controls package.
@@ -44,8 +48,7 @@
             ]);
 
             // Create a dashboard.
-            var dashboard = new google.visualization.Dashboard(
-                document.getElementById('dashboard_div'));
+            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
 
             // Create a range slider, passing some options
             var donutRangeSlider = new google.visualization.ControlWrapper({
@@ -53,36 +56,31 @@
               'containerId': 'filter_div',
               'options': {
                 'filterColumnLabel': 'NConfig'
-              }
+              },
+              'ui': {
+                             'cssClass': 'sliderClass'
+                         }
             });
             
-            // var myLine = new google.visualization.ChartWrapper({
-    //             'chartType' : 'LineChart',
-    //             'containerId' : 'chart_div',
-    //             'view': {'columns': [1, 2]},
-    //             'width': 1200,
-    //             'height':1200
-    //         });
+            var myLine = new google.visualization.ChartWrapper({
+                'chartType' : 'LineChart',
+                'containerId' : 'chart_div',
+                'view': {'columns': [1, 2]},
+                'options': {'title': 'Radius vs G(r) Difference', width: 1200, height: 800, pointSize: 5, lineWidth: 2},
+                'dataTable': data
+            });
 
-var myLine = new google.visualization.LineChart(document.getElementById('chart_div'));
-            
-            
+
             var myTable = new google.visualization.ChartWrapper({
                'chartType' : 'Table',
                'containerId' : 'table_div',
                'width': 800,
                'height': 600,
              });
-             
-             //dashboard.bind([myDateSlider, categoryPicker], myLine);
+            //var testSlider = new google.visualization.NumberRangeFilter();
+            // dashboard.bind([myDateSlider, categoryPicker], myLine);
             dashboard.bind(donutRangeSlider, myTable);
-            // Establish dependencies, declaring that 'filter' drives 'pieChart',
-            // so that the pie chart will only display entries that are let through
-            // given the chosen slider range.
-            //dashboard.bind(donutRangeSlider, myLine);
-            
-            // Draw the dashboard.
-            //myLine.draw(data);
+            dashboard.bind(donutRangeSlider, myLine);
             dashboard.draw(data);
             
             
@@ -92,19 +90,15 @@ var myLine = new google.visualization.LineChart(document.getElementById('chart_d
             function setInitialState() {
               
               var columnsTable = new google.visualization.DataTable();
-              //columnsTable.addColumn('number', 'nconfig');
+            
+              columnsTable.addColumn('number', 'nconfig');
               columnsTable.addColumn('number', 'Radius');
               columnsTable.addColumn('number', 'G(r)');
               
- 
-              console.log("Data HAS " + data.getNumberOfRows() + " rows");
               var sliderState = donutRangeSlider.getState();
               
-              // var view = {
-              //   columns: [1,2]
-              // };
-              //console.log("The left slider has value " + sliderState.lowValue);
-              //console.log("The right slider has value " + sliderState.highValue);
+             
+             
               var leftValue = sliderState.lowValue;
               var rightValue = sliderState.highValue;
               
@@ -112,30 +106,18 @@ var myLine = new google.visualization.LineChart(document.getElementById('chart_d
               // Corresponds to indices in original data Ex:- [5, 6, 7, 8, 9]
               var left_nconfigs = data.getFilteredRows([{column : 0, value: leftValue}]);
               var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
-              //console.log(left_nconfigs);
-              //console.log(right_nconfigs);
-              //console.log("FINE HERE");
-              var test = [];
+              console.log('contents');
               for(var i = 0; i < left_nconfigs.length; i++) {
                 var right_gofr = data.getValue(right_nconfigs[i], 2);
                 var left_gofr =  data.getValue(left_nconfigs[i], 2);  
-                columnsTable.addRow([data.getValue(left_nconfigs[i], 1), right_gofr-left_gofr]);
-                //columnsTable.addRow([right_gofr-left_gofr]);
-                //view.columns.push([0, data.getValue(left_nconfigs[i], 1), right_gofr - left_gofr]);
-                //view.columns.push(left_nconfigs[i]);
-                //getColumnLabel(i)
-                //console.log(right_gofr);
-                //console.log(left_gofr);
-                console.log(data.getValue(left_nconfigs[i], 1) + ", " + (right_gofr-left_gofr));
+               
+                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),right_gofr-left_gofr]);
+                console.log(data.getValue(left_nconfigs[i], 1) + "," + (right_gofr-left_gofr));
+               
               }
-              console.log(columnsTable);
-              //var view = new google.visualization.DataView(columnsTable);
-              //view.setColumns([1, 2]);
-              //console.log(view.getViewColumns());
-              //myLine.setView(view);
-              myLine.draw(columnsTable, { pointSize: 5 });
-              //myLine.setView()
-              //test.push()
+              
+              myLine.setDataTable(columnsTable);
+              myLine.draw();
             }
             
           }
@@ -152,8 +134,7 @@ var myLine = new google.visualization.LineChart(document.getElementById('chart_d
           <div id="filter_div"></div>
           <div id="chart_div"></div>
           <div id="display"></div>
-          <div id="table_div"><!-- Table renders here --></div>
-          
+          <div id="table_div"> </div>
         </div>
       </body>
     </html>
