@@ -1,8 +1,10 @@
 import pprint
+import gofr_config as gc
 class visualizer(object):
 
-  def __init__(self, data):
+  def __init__(self, data, nconfig):
     self.data = data
+    self.total_nconfigs = nconfig
   
   
   def generateVisualFile(self):
@@ -35,7 +37,7 @@ class visualizer(object):
               'controlType': 'NumberRangeFilter',
               'containerId': 'filter_div',
               'options': {
-                'filterColumnLabel': 'NConfig'
+                'filterColumnLabel': 'NConfig Slider'
               }
             });
             
@@ -100,6 +102,7 @@ class visualizer(object):
       <body class="container">
         <!--Div that will hold the dashboard-->
         <div id="dashboard_div">
+          <div id="info">NConfigs: %s<br /> Radius: %s <br /> Dr: %s <br /></div>
           <!--Divs that will hold each control and chart-->
           <div id="filter_div"></div>
           <div id="chart_div"></div>
@@ -109,7 +112,7 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % pprint.pformat(self.data)
+    """ % (pprint.pformat(self.data), str(self.total_nconfigs) , str(gc.rmax), str(gc.dr))
     
     f = open('sample_graph.html','w+')
     f.write(htmlString)

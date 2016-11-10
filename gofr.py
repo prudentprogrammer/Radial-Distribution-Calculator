@@ -150,9 +150,9 @@ class Gofr(object):
         temp_data = [counter, r, g]
         #nth_config.append(temp_data)
         #print r, g
-        visual_data.append(temp_data)
+        visual_data.append(temp_data )
       counter += 1
-    vis_obj = visualizer(visual_data) 
+    vis_obj = visualizer(visual_data, nconfig) 
     vis_obj.generateVisualFile()
     print ('Done generating visual file!')
     #pprint.pprint(visual_data)
