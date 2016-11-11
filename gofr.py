@@ -4,6 +4,7 @@ from math import sqrt, pi, pow
 import time
 import pprint
 from visualizer import visualizer
+import ast
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -19,7 +20,7 @@ class Gofr(object):
     rmax = self.rmax
     dr = self.dr
     nconfig = 0
-    cum_counts = {}
+    
   
     # This list holds the position of the atoms
     line_index = 0
@@ -46,7 +47,8 @@ class Gofr(object):
   
     count = [0.0] * nbin
     omega = 0.0
-  
+    cum_counts = {}
+    
     # Loop through the file contents line by line
     while line_index < len(file_content):
       nconfig += 1
@@ -98,19 +100,21 @@ class Gofr(object):
           length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
          
           k = (int) (length_scaled_vec + 0.5)
-          #print k
+          #print 'k = ', k
           if k < nbin:
             count[k] += 1
-       
-      cum_counts[nconfig] = count 
-       
+      
+      #print '-----'
+      #print '%d = %s'% (nconfig, count)
+      #print '------'
+      cum_counts[nconfig] = ast.literal_eval(str(count))
        
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
         line_index += 1
   
     print 'nconfig = ', nconfig
-    
+    print cum_counts
   
     if species_1_count == 0:
       print ' no atoms %s found.' % name1
@@ -122,7 +126,7 @@ class Gofr(object):
     print '%d %s atoms found.' % (species_1_count, name1)
     print '%d %s atoms found.' % (species_2_count, name2)
   
-    #print cum_counts
+    
     # Dump it to a file
     
     
@@ -137,9 +141,9 @@ class Gofr(object):
     visual_data = []
     initial_data = ['NConfig', 'Radius', 'G(r)']
     visual_data.append(initial_data)
-    counter = 0
+    counter = 1
     for key, val in cum_counts.items():
-      #nth_config = []
+      #val = 
       for i in range(1, nbin):
         r = i * dr
         rmin = (i - 0.5) * dr

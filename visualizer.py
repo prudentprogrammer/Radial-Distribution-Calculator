@@ -37,15 +37,17 @@ class visualizer(object):
               'controlType': 'NumberRangeFilter',
               'containerId': 'filter_div',
               'options': {
-                'filterColumnLabel': 'NConfig Slider'
+                'filterColumnLabel': 'NConfig',
+                "ui": {"label": "Frame Number"}
               }
+             
             });
             
             var myLine = new google.visualization.ChartWrapper({
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
                 'view': {'columns': [1, 2]},
-                'options': {'title': 'Radius vs G(r) Difference', width: 1200, height: 800, pointSize: 5, lineWidth: 2},
+                'options': {'title': 'Radius vs G(r) Difference - Molecules being compared are %s vs %s', width: 1200, height: 800, pointSize: 5, lineWidth: 2},
                 'dataTable': data
             });
            
@@ -102,7 +104,13 @@ class visualizer(object):
       <body class="container">
         <!--Div that will hold the dashboard-->
         <div id="dashboard_div">
-          <div id="info">NConfigs: %s<br /> Radius: %s <br /> Dr: %s <br /></div>
+          <div id="info">
+            NConfigs: %s <br /> 
+            Radius: %s <br /> 
+            Dr: %s <br />
+            First Molecule Name: %s <br />
+            Second Molecule Name: %s <br />
+          </div>
           <!--Divs that will hold each control and chart-->
           <div id="filter_div"></div>
           <div id="chart_div"></div>
@@ -112,7 +120,7 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), str(self.total_nconfigs) , str(gc.rmax), str(gc.dr))
+    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
     
     f = open('sample_graph.html','w+')
     f.write(htmlString)
