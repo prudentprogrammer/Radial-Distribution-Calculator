@@ -5,6 +5,7 @@ import time
 import pprint
 from visualizer import visualizer
 import ast
+import csv
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -156,13 +157,20 @@ class Gofr(object):
         #print r, g
         visual_data.append(temp_data )
       counter += 1
-    vis_obj = visualizer(visual_data, nconfig) 
-    vis_obj.generateVisualFile()
-    print ('Done generating visual file!')
+    #vis_obj = visualizer(visual_data, nconfig) 
+    #vis_obj.generateVisualFile()
+    #print ('Done generating visual file!')
     #pprint.pprint(visual_data)
-    #f = open('cum_count.txt','w+')
-    #data_string = pprint.pformat(visual_data)
-    #f.write(data_string)
+           
+    with open('cum_count.txt','w+') as fp:
+        a = csv.writer(fp, delimiter=',')
+        a.writerows(visual_data)
+    
+    # f = open('cum_count.txt','w+')
+ #    data_string = pprint.pformat(visual_data)
+ #    for item in visual_data:
+ #
+ #    f.write(data_string)
     # for key, val in cum_counts.items():
 #       length = str(len(val))
 #       step = str(key)
