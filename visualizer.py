@@ -32,6 +32,7 @@ class visualizer(object):
             // Create a dashboard.
             var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
 
+            var imageLink = document.getElementById('image_link');
             // Create a range slider, passing some options
             var nConfigSlider = new google.visualization.ControlWrapper({
               'controlType': 'NumberRangeFilter',
@@ -95,6 +96,9 @@ class visualizer(object):
               }
               myLine.setDataTable(columnsTable);
               myLine.draw();
+              
+              //imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() + '">';
+              //console.log(imageLink.innerHTML);
             }
             
           }
@@ -115,7 +119,9 @@ class visualizer(object):
           <div id="filter_div"></div>
           <div id="chart_div"></div>
           <div id="display_div"></div>
+          <div id="image_link"></div>
           <div id="table_div"><!-- Table renders here --></div>
+          
           
         </div>
       </body>
