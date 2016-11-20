@@ -92,7 +92,7 @@ class visualizer(object):
               for(var i = 0; i < left_nconfigs.length; i++) {
                 var right_gofr = data.getValue(right_nconfigs[i], 2);
                 var left_gofr =  data.getValue(left_nconfigs[i], 2);  
-                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),right_gofr-left_gofr]);
+                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr-left_gofr)/(rightValue - leftValue)]);
               }
               myLine.setDataTable(columnsTable);
               myLine.draw();

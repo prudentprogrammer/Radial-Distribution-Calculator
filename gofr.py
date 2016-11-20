@@ -114,7 +114,7 @@ class Gofr(object):
         line_index += 1
   
     print 'nconfig = ', nconfig
-    print cum_counts
+    #print cum_counts
   
     if species_1_count == 0:
       print ' no atoms %s found.' % name1
@@ -149,7 +149,7 @@ class Gofr(object):
         rmin = (i - 0.5) * dr
         rmax = (i + 0.5) * dr
         vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
-        count_id = vshell * nconfig * npairs / omega
+        count_id = (vshell * npairs) / omega
         g = val[i] / count_id
         temp_data = [counter, r, g]
         #nth_config.append(temp_data)
