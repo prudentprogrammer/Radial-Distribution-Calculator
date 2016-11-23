@@ -22,7 +22,6 @@ class Gofr(object):
     dr = self.dr
     nconfig = 0
     
-  
     # This list holds the position of the atoms
     line_index = 0
   
@@ -124,7 +123,6 @@ class Gofr(object):
     else:
       npairs = species_1_count * species_2_count
     
-    
     visual_data = []
     initial_data = ['NConfig', 'Radius', 'G(r)']
     visual_data.append(initial_data)
@@ -151,5 +149,3 @@ class Gofr(object):
       n += count[i] / (species_1_count * nconfig)
       print 'r, n = %s, %s' % (r, n)
     
-
-
