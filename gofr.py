@@ -67,10 +67,7 @@ class Gofr(object):
 
       uc = unitcell.UnitCell(a0, a1, a2)
       omega = uc.getVolume()
-      #print 'Number atoms = ' , number_atoms
-      #print 'Volume = ', omega
-      
-      
+
       for i in range(number_atoms):
         line_clean = file_content[line_index].split()
         line_index += 1
@@ -92,31 +89,23 @@ class Gofr(object):
         for j in range(species_2_count):
           first_vector = tau[isp1[i]]
           second_vector = tau[isp2[j]]
+          
           difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
-          
           difference_vector = uc.fold_in_ws(difference_vector)
-          
           scaled_vec = [x / dr for x in difference_vector]
           
           length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
          
           k = (int) (length_scaled_vec + 0.5)
-          #print 'k = ', k
           if k < nbin:
             count[k] += 1
       
-      #print '-----'
-      #print '%d = %s'% (nconfig, count)
-      #print '------'
       cum_counts[nconfig] = ast.literal_eval(str(count))
        
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
         line_index += 1
-  
-    print 'nconfig = ', nconfig
-    #print cum_counts
-  
+    
     if species_1_count == 0:
       print ' no atoms %s found.' % name1
       sys.exit(1)
@@ -127,10 +116,7 @@ class Gofr(object):
     print '%d %s atoms found.' % (species_1_count, name1)
     print '%d %s atoms found.' % (species_2_count, name2)
   
-    
-    # Dump it to a file
-    
-    
+        
     # normalization differs for same species vs different species
     npairs = 0
     if name1 == name2:
@@ -144,7 +130,6 @@ class Gofr(object):
     visual_data.append(initial_data)
     counter = 1
     for key, val in cum_counts.items():
-      #val = 
       for i in range(1, nbin):
         r = i * dr
         rmin = (i - 0.5) * dr
@@ -153,32 +138,12 @@ class Gofr(object):
         count_id = (vshell * npairs) / omega
         g = val[i] / count_id
         temp_data = [counter, r, g]
-        #nth_config.append(temp_data)
-        #print r, g
         visual_data.append(temp_data )
       counter += 1
-    #vis_obj = visualizer(visual_data, nconfig) 
-    #vis_obj.generateVisualFile()
-    #print ('Done generating visual file!')
-    #pprint.pprint(visual_data)
            
     with open('cum_count.txt','w+') as fp:
         a = csv.writer(fp, delimiter=',')
         a.writerows(visual_data)
-    
-    # f = open('cum_count.txt','w+')
- #    data_string = pprint.pformat(visual_data)
- #    for item in visual_data:
- #
- #    f.write(data_string)
-    # for key, val in cum_counts.items():
-#       length = str(len(val))
-#       step = str(key)
-#       counts = '\n'.join([str(x) for x in val])
-#       f.write('%s %s\n' % (length, step))
-#       f.write('%s\n' % (counts))
-#       f.write('\n\n')
-    
     
     n = 0.0
     for i in range(1, nbin):
