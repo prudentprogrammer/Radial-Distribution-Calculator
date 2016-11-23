@@ -1,5 +1,48 @@
 import pprint
 import gofr_config as gc
+import urllib2
+import sys
+import pprint
+import os.path
+import csv
+
+
+argc = len(sys.argv)
+if ( argc < 2 or argc > 3 ):
+  print "use: ", sys.argv[0]
+  sys.exit()
+  
+input_source = sys.argv[1]
+fp = None
+# test if input_source is a local file
+# if not, process as a URL
+if ( os.path.isfile(input_source) ):
+  fp = open(input_source)
+else:
+  # attempt to open as a URL
+  try:
+    fp = urllib2.urlopen(input_source)
+  except (ValueError,urllib2.HTTPError) as e:
+    print 'Error opening the URL'
+    sys.exit()
+
+vis_data = []
+rownum = 0
+try:
+  reader = csv.reader(fp) 
+  for row in reader:
+    # Save header row.
+    if rownum == 0:
+      header = row
+      vis_data.append(header)
+    else:
+      float_list = [float(x) for x in row]
+      vis_data.append(float_list)
+    rownum += 1
+finally:
+  fp.close()
+
+
 class visualizer(object):
 
   def __init__(self, data, nconfig):
@@ -131,3 +174,10 @@ class visualizer(object):
     f = open('sample_graph.html','w+')
     f.write(htmlString)
 
+
+
+
+nconfig = vis_data[-1][0]
+vis_obj = visualizer(vis_data, nconfig) 
+vis_obj.generateVisualFile()
+print ('Done generating visual file!')
