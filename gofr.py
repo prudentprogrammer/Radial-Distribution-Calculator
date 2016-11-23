@@ -3,9 +3,9 @@ import sys
 from math import sqrt, pi, pow
 import time
 import pprint
-from visualizer import visualizer
 import ast
 import csv
+import gofr_config as gc
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr):
@@ -99,7 +99,8 @@ class Gofr(object):
           if k < nbin:
             count[k] += 1
       
-      cum_counts[nconfig] = ast.literal_eval(str(count))
+      if nconfig % gc.stepsize == 0:
+        cum_counts[nconfig] = ast.literal_eval(str(count))
        
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
@@ -137,6 +138,8 @@ class Gofr(object):
         g = val[i] / count_id
         temp_data = [counter, r, g]
         visual_data.append(temp_data )
+      
+      # Counter in outer loop records which config number it is
       counter += 1
            
     with open('cum_count.txt','w+') as fp:

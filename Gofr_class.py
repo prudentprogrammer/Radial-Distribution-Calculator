@@ -8,7 +8,6 @@ from gofr import Gofr
 if __name__ == "__main__":
   x = QBox_XYZ(gc.all_or_first, gc.input_source)
   output = x.process()
-  #output = [x.strip() for x in output]
   output =  (' '.join(output))
   output = output.split("\n")
   output = [x.strip() for x in output]

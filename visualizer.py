@@ -6,7 +6,6 @@ import pprint
 import os.path
 import csv
 
-
 argc = len(sys.argv)
 if ( argc < 2 or argc > 3 ):
   print "use: ", sys.argv[0]
@@ -42,14 +41,12 @@ try:
 finally:
   fp.close()
 
-
 class visualizer(object):
 
   def __init__(self, data, nconfig):
     self.data = data
     self.total_nconfigs = nconfig
-  
-  
+    
   def generateVisualFile(self):
     htmlString = r"""
     <html>

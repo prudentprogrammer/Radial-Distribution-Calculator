@@ -23,7 +23,7 @@ class QBox_XYZ(object):
     if self.allOrFirst == 'a':
       first_only = False
 
-    #print 'Now parsing file .....'
+    print 'Now parsing file .....'
 
     parser = xml.sax.make_parser()
     handler = QboxOutputHandler()
