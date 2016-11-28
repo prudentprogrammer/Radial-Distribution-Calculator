@@ -8,12 +8,13 @@ import csv
 import gofr_config as gc
 
 class Gofr(object):
-  def __init__(self, xyzInput, name1, name2, rmax, dr):
+  def __init__(self, xyzInput, name1, name2, rmax, dr, fileName):
     self.xyzInput = xyzInput
     self.name1 = name1
     self.name2 = name2
     self.rmax = rmax
     self.dr = dr
+    self.fileName = fileName
     
   def process(self):
     name1 = self.name1
@@ -142,7 +143,7 @@ class Gofr(object):
       # Counter in outer loop records which config number it is
       counter += 1
            
-    with open('cum_count.txt','w+') as fp:
+    with open(self.fileName,'w+') as fp:
         a = csv.writer(fp, delimiter=',')
         a.writerows(visual_data)
     
