@@ -1,9 +1,11 @@
+#!/usr/bin/python
 import pprint
 import gofr_config as gc
 import urllib2
 import sys
 import pprint
 import os.path
+import getopt
 import csv
 
 
@@ -89,9 +91,11 @@ finally:
 
 class visualizer(object):
 
-  def __init__(self, data, nconfig):
+  def __init__(self, data, nconfig, xlim, ylim):
     self.data = data
     self.total_nconfigs = nconfig
+    self.xlim = xlim
+    self.ylim = ylim
     
   def generateVisualFile(self):
     htmlString = r"""
@@ -221,7 +225,7 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
+    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, self.xlim, self.ylim, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
     
     f = open('sample_graph.html','w+')
     f.write(htmlString)
@@ -230,6 +234,6 @@ class visualizer(object):
 
 
 nconfig = vis_data[-1][0]
-vis_obj = visualizer(vis_data, nconfig) 
+vis_obj = visualizer(vis_data, nconfig, xlim, ylim) 
 vis_obj.generateVisualFile()
 print ('Done generating visual file!')
