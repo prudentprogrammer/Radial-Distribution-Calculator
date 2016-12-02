@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import pprint
 import gofr_config as gc
 import urllib2
@@ -6,37 +5,14 @@ import sys
 import pprint
 import os.path
 import csv
-import getopt
 
 argc = len(sys.argv)
-print argc
-try:
-  opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
-except getopt.GetoptError:
-  print 'visualizer.py counts.dat -x 4 -y 4'
-  sys.exit(2)
-  
-#print opts
-#print args
-xlim = ''
-ylim = ''
-for o, a in opts:
-    if o in ('-x', '--xlim'):
-        xlim=a
-    elif o in ('-y', '--ylim'):
-        ylim=a
-    else:
-        print("Usage: %s -x 4 -y 4" % sys.argv[0])
-     
-print ("Input file : %s and output file: %s" % (xlim,ylim) )
-
-#sys.exit(0)
-
-#if ( argc < 2 or argc > 3 ):
-#  print "use: ", sys.argv[0]
-#  sys.exit()
+if ( argc < 2 or argc > 3 ):
+  print "use: ", sys.argv[0]
+  sys.exit()
   
 input_source = sys.argv[1]
+
 fp = None
 # test if input_source is a local file
 # if not, process as a URL
@@ -68,11 +44,9 @@ finally:
 
 class visualizer(object):
 
-  def __init__(self, data, nconfig, xlim, ylim):
+  def __init__(self, data, nconfig):
     self.data = data
     self.total_nconfigs = nconfig
-    self.xlim = xlim
-    self.ylim = ylim
     
   def generateVisualFile(self):
     htmlString = r"""
@@ -115,15 +89,7 @@ class visualizer(object):
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
                 'view': {'columns': [1, 2]},
-                'options': {
-                  'title': 'Radius vs G(r) Difference - Molecules being compared are %s vs %s', 
-                  width: 1200, 
-                  height: 800, 
-                  pointSize: 5, 
-                  lineWidth: 2,
-                  hAxis: {maxValue: %s},
-                  vAxis: {maxValue: %s}
-                },
+                'options': {'title': 'Radius vs G(r) Difference - Molecules being compared are %s vs %s', width: 1200, height: 800, pointSize: 5, lineWidth: 2},
                 'dataTable': data
             });
            
@@ -201,15 +167,15 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, self.xlim, self.ylim, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
+    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
     
     f = open('sample_graph.html','w+')
     f.write(htmlString)
 
 
 
-#print 'xlim  = ', xlim
+
 nconfig = vis_data[-1][0]
-vis_obj = visualizer(vis_data, nconfig, xlim, ylim) 
+vis_obj = visualizer(vis_data, nconfig) 
 vis_obj.generateVisualFile()
 print ('Done generating visual file!')
