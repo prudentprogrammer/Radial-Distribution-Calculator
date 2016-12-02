@@ -8,10 +8,29 @@ import os.path
 import csv
 import getopt
 
+
+def handle_files(fp, source_file):
+  fp = None
+  # test if input_source is a local file
+  # if not, process as a URL
+  if ( os.path.isfile(source_file) ):
+    fp = open(source_file)
+  else:
+    # attempt to open as a URL
+    try:
+      fp = urllib2.urlopen(source_file)
+    except (ValueError,urllib2.HTTPError) as e:
+      print 'Error opening the URL'
+      sys.exit()
+  
+  return fp 
+
+
+
 argc = len(sys.argv)
 print argc
 try:
-  opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
+  opts, args = getopt.getopt(sys.argv[3:], "hx:y:", ["help", "xlim=", "ylim="])
 except getopt.GetoptError:
   print 'visualizer.py counts.dat -x 4 -y 4'
   sys.exit(2)
@@ -37,18 +56,12 @@ print ("Input file : %s and output file: %s" % (xlim,ylim) )
 #  sys.exit()
   
 input_source = sys.argv[1]
+second_source = sys.argv[2]
+
+print 'second_source', second_source
+
 fp = None
-# test if input_source is a local file
-# if not, process as a URL
-if ( os.path.isfile(input_source) ):
-  fp = open(input_source)
-else:
-  # attempt to open as a URL
-  try:
-    fp = urllib2.urlopen(input_source)
-  except (ValueError,urllib2.HTTPError) as e:
-    print 'Error opening the URL'
-    sys.exit()
+fp = handle_files(fp, input_source)
 
 vis_data = []
 rownum = 0
@@ -65,6 +78,9 @@ try:
     rownum += 1
 finally:
   fp.close()
+  
+  
+
 
 class visualizer(object):
 
@@ -121,8 +137,8 @@ class visualizer(object):
                   height: 800, 
                   pointSize: 5, 
                   lineWidth: 2,
-                  hAxis: {maxValue: %s},
-                  vAxis: {maxValue: %s}
+                  hAxis: {viewWindow: {max: %s}},
+                  vAxis: {viewWindow: {max: %s}}
                 },
                 'dataTable': data
             });
