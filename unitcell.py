@@ -74,11 +74,7 @@ class UnitCell(object):
     for index in range(len(self.anMatrix)):
       self.an2h.append(0.5 * self.norm(self.anMatrix[index]))
       self.bn2h.append(0.5 * self.norm(self.bnMatrix[index]))
-    
-    #pprint(self.anMatrix)
-    #pprint(self.an2h)
-    
-           
+              
   def norm(self, a):
     return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
     
@@ -130,14 +126,4 @@ class UnitCell(object):
     
   def getVolume(self):
     return self.volume
-    
-  def showStuff(self):
-    print self.anMatrix
-    #print self.volume
    
-    
-
-#uc = UnitCell([4.233416,0.000000,0.000000], [0.000000,4.233416,0.000000], [0.000000,0.000000,4.233416])
-#uc.scalarProduct([1, 2, 2], [3, 5, 1])
-#uc.showStuff()
-#print(uc.fold_in_ws([0.635012,0.635012,-0.635012]))
