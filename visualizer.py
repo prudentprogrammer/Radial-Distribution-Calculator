@@ -71,23 +71,45 @@ fp = None
 fp = handle_files(fp, input_source)
 
 vis_data = []
+first_source_vals = {}
+second_source_vals = {}
+vis_data.append(['NConfig','Radius', 'Gr1', 'Gr2'])
 rownum = 0
 try:
   reader = csv.reader(fp) 
   for row in reader:
-    # Save header row.
-    if rownum == 0:
-      header = row
-      vis_data.append(header)
-    else:
-      float_list = [float(x) for x in row]
-      vis_data.append(float_list)
+    if rownum != 0:
+      key = row[0] + ',' + row[1]
+      first_source_vals[key] = row[2]
+      #float_list = [float(x) for x in row]
+      #vis_data.append(float_list)
     rownum += 1
 finally:
   fp.close()
   
-  
+fp = handle_files(fp, second_source)
+rownum = 0
+try:
+  reader = csv.reader(fp) 
+  for row in reader:
+    if rownum != 0:
+      try:
+        key = row[0] + ',' + row[1]
+        tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
+        vis_data.append(tempList)
+        #print key + ',' + first_source_vals[key] + ',' + row[2]
+        #second_source[key] = row[2]
+      except KeyError:
+        continue
+      #float_list = [float(x) for x in row]
+      #vis_data.append(float_list)
+    rownum += 1
+finally:
+  fp.close()
 
+  
+  
+#pprint.pprint(vis_data)
 
 class visualizer(object):
 
@@ -137,7 +159,7 @@ class visualizer(object):
             var myLine = new google.visualization.ChartWrapper({
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
-                'view': {'columns': [1, 2]},
+                'view': {'columns': [1, 2, 3]},
 
                 'options': {
                   'title': 'Radius vs G(r) Difference - Molecules being compared are %s vs %s', 
@@ -176,7 +198,8 @@ class visualizer(object):
               var columnsTable = new google.visualization.DataTable();
               columnsTable.addColumn('number', 'nconfig');
               columnsTable.addColumn('number', 'Radius');
-              columnsTable.addColumn('number', 'G(r)');
+              columnsTable.addColumn('number', 'Gr1');
+              columnsTable.addColumn('number', 'Gr2');
               
               // Get Slider Information
               var sliderState = nConfigSlider.getState();
@@ -189,9 +212,13 @@ class visualizer(object):
               var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
               
               for(var i = 0; i < left_nconfigs.length; i++) {
-                var right_gofr = data.getValue(right_nconfigs[i], 2);
-                var left_gofr =  data.getValue(left_nconfigs[i], 2);  
-                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr-left_gofr)/(rightValue - leftValue)]);
+                var right_gofr_1 = data.getValue(right_nconfigs[i], 2);
+                var left_gofr_1 =  data.getValue(left_nconfigs[i], 2); 
+                
+                var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
+                var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
+                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),
+              (right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
               }
               myLine.setDataTable(columnsTable);
               myLine.draw();
