@@ -78,11 +78,11 @@ class Gofr(object):
         if nconfig == 1:
           names_of_atoms.append(nm)
           if name1 in nm:
-            species_1_count += 1
             isp1[species_1_count] = i
+            species_1_count += 1
           if name2 in nm:
-            species_2_count += 1
             isp2[species_2_count] = i
+            species_2_count += 1
       
           
       for i in range(species_1_count):
