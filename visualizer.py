@@ -162,13 +162,13 @@ class visualizer(object):
                 'view': {'columns': [1, 2, 3]},
 
                 'options': {
-                  'title': 'Radius vs G(r) Difference - Molecules being compared are %s vs %s', 
+                  'title': 'g_%s%s(r)',
                   width: 1200, 
                   height: 800, 
                   pointSize: 5, 
                   lineWidth: 2,
-                  hAxis: {viewWindow: {max: %s}},
-                  vAxis: {viewWindow: {max: %s}}
+                  hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)'},
+                  vAxis: {viewWindow: {max: %s}, title: 'g(r)'}
                 },
                 'dataTable': data
             });
