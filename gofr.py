@@ -6,6 +6,8 @@ import pprint
 import ast
 import csv
 import gofr_config as gc
+import collections
+
 
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr, fileName):
@@ -100,8 +102,12 @@ class Gofr(object):
           if k < nbin:
             count[k] += 1
       
+      #print count
       if nconfig % gc.stepsize == 0:
         cum_counts[nconfig] = ast.literal_eval(str(count))
+
+      #print '\n\n'
+      #print cum_counts
        
       if line_index < len(file_content):
         number_atoms = int(file_content[line_index])
@@ -129,6 +135,9 @@ class Gofr(object):
     initial_data = ['NConfig', 'Radius', 'G(r)']
     visual_data.append(initial_data)
     counter = 1
+
+    cum_counts = collections.OrderedDict(sorted(cum_counts.items()))
+
     for key, val in cum_counts.items():
       for i in range(1, nbin):
         r = i * dr

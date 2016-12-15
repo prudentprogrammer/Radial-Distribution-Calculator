@@ -21,7 +21,7 @@ def handle_files(fp, source_file):
       fp = urllib2.urlopen(source_file)
     except (ValueError,urllib2.HTTPError) as e:
       print 'Error opening the URL'
-      sys.exit()
+      #sys.exit()
   
   return fp 
 
@@ -36,7 +36,7 @@ argc = len(sys.argv)
 input_source = sys.argv[1]
 print argc
 try:
-  opts, args = getopt.getopt(sys.argv[3:], "hx:y:", ["help", "xlim=", "ylim="])
+  opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
 except getopt.GetoptError:
   print 'visualizer.py counts.dat -x 4 -y 4'
   sys.exit(2)
@@ -73,7 +73,7 @@ fp = handle_files(fp, input_source)
 vis_data = []
 first_source_vals = {}
 second_source_vals = {}
-vis_data.append(['NConfig','Radius', 'Gr1', 'Gr2'])
+vis_data.append(['NConfig','Radius', 'Gr1'])#, 'Gr2'])
 rownum = 0
 try:
   reader = csv.reader(fp) 
@@ -81,37 +81,45 @@ try:
     if rownum != 0:
       key = row[0] + ',' + row[1]
       first_source_vals[key] = row[2]
-      #float_list = [float(x) for x in row]
-      #vis_data.append(float_list)
+      float_list = [float(x) for x in row]
+      vis_data.append(float_list)
     rownum += 1
 finally:
   fp.close()
   
-fp = handle_files(fp, second_source)
-rownum = 0
-try:
-  reader = csv.reader(fp) 
-  for row in reader:
-    if rownum != 0:
-      try:
-        key = row[0] + ',' + row[1]
-        tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
-        vis_data.append(tempList)
-        #print key + ',' + first_source_vals[key] + ',' + row[2]
-        #second_source[key] = row[2]
-      except KeyError:
-        continue
-      #float_list = [float(x) for x in row]
-      #vis_data.append(float_list)
-    rownum += 1
-finally:
-  fp.close()
+# fp = handle_files(fp, second_source)
+# rownum = 0
+# try:
+#   reader = csv.reader(fp) 
+#   for row in reader:
+#     if rownum != 0:
+#       try:
+#         key = row[0] + ',' + row[1]
+#         tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
+#         vis_data.append(tempList)
+#         #print key + ',' + first_source_vals[key] + ',' + row[2]
+#         #second_source[key] = row[2]
+#       except KeyError:
+#         continue
+#       #float_list = [float(x) for x in row]
+#       #vis_data.append(float_list)
+#     rownum += 1
+# finally:
+#   fp.close()
 
-  
+
+def seq(start, stop, step=1):
+    n = int(round((stop - start)/float(step)))
+    if n > 1:
+        return([start + step*i for i in range(n+1)])
+    else:
+        return([])
   
 #pprint.pprint(vis_data)
 
 class visualizer(object):
+
+
 
   def __init__(self, data, nconfig, xlim, ylim):
     self.data = data
@@ -120,6 +128,9 @@ class visualizer(object):
     self.ylim = ylim
     
   def generateVisualFile(self):
+    tickValues = str(seq(0, float(self.xlim), 0.5))
+    #print tickValues
+
     htmlString = r"""
     <html>
       <head>
@@ -159,7 +170,7 @@ class visualizer(object):
             var myLine = new google.visualization.ChartWrapper({
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
-                'view': {'columns': [1, 2, 3]},
+                'view': {'columns': [1, 2]},
 
                 'options': {
                   'title': 'g_%s%s(r)',
@@ -167,7 +178,7 @@ class visualizer(object):
                   height: 800, 
                   pointSize: 5, 
                   lineWidth: 2,
-                  hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)'},
+                  hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)', ticks: %s},
                   vAxis: {viewWindow: {max: %s}, title: 'g(r)'}
                 },
                 'dataTable': data
@@ -199,7 +210,7 @@ class visualizer(object):
               columnsTable.addColumn('number', 'nconfig');
               columnsTable.addColumn('number', 'Radius');
               columnsTable.addColumn('number', 'Gr1');
-              columnsTable.addColumn('number', 'Gr2');
+              //columnsTable.addColumn('number', 'Gr2');
               
               // Get Slider Information
               var sliderState = nConfigSlider.getState();
@@ -215,10 +226,11 @@ class visualizer(object):
                 var right_gofr_1 = data.getValue(right_nconfigs[i], 2);
                 var left_gofr_1 =  data.getValue(left_nconfigs[i], 2); 
                 
-                var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
-                var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
-                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),
-              (right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
+                //var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
+                //var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
+                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue)
+                ]);
+              //(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
               }
               myLine.setDataTable(columnsTable);
               myLine.draw();
@@ -252,12 +264,13 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, self.xlim, self.ylim, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
+    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, self.xlim, tickValues, self.ylim, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
     
-    f = open('sample_graph.html','w+')
+    final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
+    f = open(final_filename,'w+')
     f.write(htmlString)
 
-
+    
 
 
 nconfig = vis_data[-1][0]
