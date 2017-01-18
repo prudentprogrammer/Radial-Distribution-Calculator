@@ -13,6 +13,7 @@ def handle_files(fp, source_file):
   fp = None
   # test if input_source is a local file
   # if not, process as a URL
+  print 'sf = ', source_file
   if ( os.path.isfile(source_file) ):
     fp = open(source_file)
   else:
@@ -26,23 +27,41 @@ def handle_files(fp, source_file):
   return fp 
 
 
-
 argc = len(sys.argv)
+input_source1 = sys.argv[1]
+input_source2 = ''
 
-#if ( argc < 2 or argc > 3 ):
-#  print "use: ", sys.argv[0]
-#  sys.exit()
-  
-input_source = sys.argv[1]
+
+# ./visualizer.py cum_counts.txt 
+# ./visualizer.py cum_counts.txt -x 5 -y 5
+# ./visualizer.py cum_counts.txt cum_counts2.txt
+# ./visualizer.py cum_counts.txt cum_counts2.txt -x 5 -y 5
+
+if sys.argv[2] == '':
+  input_source2 = ''
+elif sys.argv[2] == '-x' or sys.argv[2] == '--x':
+  input_source2 = ''
+# If it is a file
+elif ".txt" in sys.argv[2]:
+  input_source2 = sys.argv[2]
+
 print argc
+print sys.argv
+
+
+#sys.exit(0)
+
 try:
-  opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
+  if input_source2 == '':
+    opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
+  else:
+    opts, args = getopt.getopt(sys.argv[3:], "hx:y:", ["help", "xlim=", "ylim="])
 except getopt.GetoptError:
   print 'visualizer.py counts.dat -x 4 -y 4'
   sys.exit(2)
   
-#print opts
-#print args
+print opts
+print args
 xlim = ''
 ylim = ''
 for o, a in opts:
@@ -53,27 +72,27 @@ for o, a in opts:
     else:
         print("Usage: %s -x 4 -y 4" % sys.argv[0])
      
-print ("Input file : %s and output file: %s" % (xlim,ylim) )
+print ("X Bound : %s and Y bound: %s" % (xlim,ylim) )
 
-#sys.exit(0)
 
-#if ( argc < 2 or argc > 3 ):
-#  print "use: ", sys.argv[0]
-#  sys.exit()
-  
-input_source = sys.argv[1]
-second_source = sys.argv[2]
-
-print 'second_source', second_source
+print 'input_source1 = %s' % input_source1
+print 'input_source2 = %s' % input_source2
 
 
 fp = None
-fp = handle_files(fp, input_source)
+fp = handle_files(fp, input_source1)
+
+
 
 vis_data = []
 first_source_vals = {}
 second_source_vals = {}
-vis_data.append(['NConfig','Radius', 'Gr1'])#, 'Gr2'])
+
+if input_source2 == '':
+  vis_data.append(['NConfig','Radius', 'Gr1']) # Only one file
+elif input_source2 != '':
+  vis_data.append(['NConfig','Radius', 'Gr1', 'Gr2']) # Two files
+
 rownum = 0
 try:
   reader = csv.reader(fp) 
@@ -82,30 +101,31 @@ try:
       key = row[0] + ',' + row[1]
       first_source_vals[key] = row[2]
       float_list = [float(x) for x in row]
-      vis_data.append(float_list)
+      if input_source2 == '':
+        vis_data.append(float_list)
     rownum += 1
 finally:
   fp.close()
   
-# fp = handle_files(fp, second_source)
-# rownum = 0
-# try:
-#   reader = csv.reader(fp) 
-#   for row in reader:
-#     if rownum != 0:
-#       try:
-#         key = row[0] + ',' + row[1]
-#         tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
-#         vis_data.append(tempList)
-#         #print key + ',' + first_source_vals[key] + ',' + row[2]
-#         #second_source[key] = row[2]
-#       except KeyError:
-#         continue
-#       #float_list = [float(x) for x in row]
-#       #vis_data.append(float_list)
-#     rownum += 1
-# finally:
-#   fp.close()
+if input_source2 != '':
+  fp = handle_files(fp, input_source2)
+  rownum = 0
+  try:
+    reader = csv.reader(fp) 
+    for row in reader:
+      if rownum != 0:
+        try:
+          key = row[0] + ',' + row[1]
+          tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
+          vis_data.append(tempList)
+        except KeyError:
+          continue
+      rownum += 1
+  finally:
+    fp.close()
+
+pprint.pprint(vis_data)
+#sys.exit(0)
 
 
 def seq(start, stop, step=1):
@@ -119,17 +139,38 @@ def seq(start, stop, step=1):
 
 class visualizer(object):
 
-
-
-  def __init__(self, data, nconfig, xlim, ylim):
+  def __init__(self, data, nconfig, xlim, ylim, twoInputFiles):
     self.data = data
     self.total_nconfigs = nconfig
     self.xlim = xlim
     self.ylim = ylim
+    self.twoInputFiles = twoInputFiles
     
   def generateVisualFile(self):
     tickValues = str(seq(0, float(self.xlim), 0.5))
     #print tickValues
+
+    columnStringInterpolation = ''
+    gr2Add = ''
+    dataframeAdjust = ''
+
+
+    if not self.twoInputFiles:
+      columnStringInterpolation = "'columns': [1, 2]"
+      gr2Add = "//columnsTable.addColumn('number', 'Gr2');"
+      dataframeAdjust = r'''
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue)]);
+      '''
+
+
+    else:
+      columnStringInterpolation = "'columns': [1, 2, 3]"
+      gr2Add = "columnsTable.addColumn('number', 'Gr2');"
+      dataframeAdjust = r'''
+      var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
+      var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
+      '''
 
     htmlString = r"""
     <html>
@@ -170,7 +211,7 @@ class visualizer(object):
             var myLine = new google.visualization.ChartWrapper({
                 'chartType' : 'LineChart',
                 'containerId' : 'chart_div',
-                'view': {'columns': [1, 2]},
+                'view': {%s},
 
                 'options': {
                   'title': 'g_%s%s(r)',
@@ -212,7 +253,7 @@ class visualizer(object):
               columnsTable.addColumn('number', 'nconfig');
               columnsTable.addColumn('number', 'Radius');
               columnsTable.addColumn('number', 'Gr1');
-              //columnsTable.addColumn('number', 'Gr2');
+              %s
               
               // Get Slider Information
               var sliderState = nConfigSlider.getState();
@@ -228,11 +269,7 @@ class visualizer(object):
                 var right_gofr_1 = data.getValue(right_nconfigs[i], 2);
                 var left_gofr_1 =  data.getValue(left_nconfigs[i], 2); 
                 
-                //var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
-                //var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
-                columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue)
-                ]);
-              //(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
+                %s
               }
               myLine.setDataTable(columnsTable);
               myLine.draw();
@@ -266,9 +303,23 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, tickValues, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
+    """ % (
+      pprint.pformat(self.data), 
+      columnStringInterpolation,
+      gc.first_molecule_name, 
+      gc.second_molecule_name, 
+      tickValues, 
+      gr2Add,
+      dataframeAdjust,
+      str(self.total_nconfigs) , 
+      str(gc.rmax), 
+      str(gc.dr), 
+      str(gc.first_molecule_name), 
+      str(gc.second_molecule_name)
+      )
     # CURRENTLY X AND Y LIMITS ARE TAKEN OUT
-    final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
+    #final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
+    final_filename = "test1.html"
     f = open(final_filename,'w+')
     f.write(htmlString)
 
@@ -276,6 +327,12 @@ class visualizer(object):
 
 
 nconfig = vis_data[-1][0]
-vis_obj = visualizer(vis_data, nconfig, xlim, ylim) 
+
+twoFiles = False
+
+if input_source2 != '':
+  twoFiles = True
+
+vis_obj = visualizer(vis_data, nconfig, xlim, ylim, twoFiles) 
 vis_obj.generateVisualFile()
 print ('Done generating visual file!')
