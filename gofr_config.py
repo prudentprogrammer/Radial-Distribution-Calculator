@@ -8,4 +8,4 @@ first_molecule_name = "H"
 second_molecule_name = "H"
 rmax = 5
 dr = 0.05
-stepsize = 20
+stepsize = 1

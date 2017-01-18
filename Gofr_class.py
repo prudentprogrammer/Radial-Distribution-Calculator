@@ -13,7 +13,7 @@ if __name__ == "__main__":
     output = output.split("\n")
     output = [x.strip() for x in output]
     output = [x for x in output if len(x) != 0]
-    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "cum_counts.txt")
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts.txt")
     gofr_obj.process()
     print 'Done processing first input source...'
   
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     output = output.split("\n")
     output = [x.strip() for x in output]
     output = [x for x in output if len(x) != 0]
-    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "cum_counts2.txt")
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts2.txt")
     gofr_obj.process()
     print 'Done processing second input source...'
   
