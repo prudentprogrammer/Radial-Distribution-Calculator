@@ -145,7 +145,7 @@ class Gofr(object):
         rmax = (i + 0.5) * dr
         vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
         count_id = (vshell * npairs) / omega
-        g = val[i] / count_id
+        g = val[i] / (count_id * gc.stepsize)
         temp_data = [counter, r, g]
         visual_data.append(temp_data )
       

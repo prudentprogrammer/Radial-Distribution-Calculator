@@ -6,16 +6,16 @@ import gofr_config as gc
 from gofr import Gofr
 
 if __name__ == "__main__":
-  x1 = QBox_XYZ(gc.all_or_first, gc.first_input_source)
-  output = x1.process()
-  output =  (' '.join(output))
-  output = output.split("\n")
-  output = [x.strip() for x in output]
-  output = [x for x in output if len(x) != 0]
-  #final_filename = "cumcounts_%s_stepsize%s_1.txt" % (gc.first_input_source, gc.stepsize)
-  gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "cum_counts.txt")
-  gofr_obj.process()
-  print 'Done processing first input source...'
+  if gc.first_input_source != '':
+    x1 = QBox_XYZ(gc.all_or_first, gc.first_input_source)
+    output = x1.process()
+    output =  (' '.join(output))
+    output = output.split("\n")
+    output = [x.strip() for x in output]
+    output = [x for x in output if len(x) != 0]
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "cum_counts.txt")
+    gofr_obj.process()
+    print 'Done processing first input source...'
   
   
   if gc.second_input_source != '':
@@ -29,11 +29,4 @@ if __name__ == "__main__":
     gofr_obj.process()
     print 'Done processing second input source...'
   
-  
-  
-  
-  
-  
-  
-  #print output
 

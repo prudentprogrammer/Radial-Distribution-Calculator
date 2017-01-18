@@ -178,8 +178,10 @@ class visualizer(object):
                   height: 800, 
                   pointSize: 5, 
                   lineWidth: 2,
-                  hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)', ticks: %s},
-                  vAxis: {viewWindow: {max: %s}, title: 'g(r)'}
+                  hAxis: {title: 'r (Angstrom)', ticks: %s},
+                  vAxis: {title: 'g(r)'}
+                  //hAxis: {viewWindow: {max: stuff}, title: 'r (Angstrom)', ticks: stuff},
+                  //vAxis: {viewWindow: {max: stuff}, title: 'g(r)'}
                 },
                 'dataTable': data
             });
@@ -264,8 +266,8 @@ class visualizer(object):
         </div>
       </body>
     </html>
-    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, self.xlim, tickValues, self.ylim, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
-    
+    """ % (pprint.pformat(self.data), gc.first_molecule_name, gc.second_molecule_name, tickValues, str(self.total_nconfigs) , str(gc.rmax), str(gc.dr), str(gc.first_molecule_name), str(gc.second_molecule_name))
+    # CURRENTLY X AND Y LIMITS ARE TAKEN OUT
     final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
     f = open(final_filename,'w+')
     f.write(htmlString)

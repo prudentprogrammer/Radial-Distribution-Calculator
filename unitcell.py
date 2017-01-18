@@ -1,7 +1,21 @@
+'''
+Filename: unitcell.py
+Author: Arjun Bharadwaj (translated from C++ code written by Dr.Gygi)
+Description: This file represents a 3-d molecule in space.
+'''
+
 import math
 from pprint import pprint
 
 class UnitCell(object):
+
+  '''
+  Class constructor
+  Arguments: a0, a1, a2 represent the three x, y, and z vectors in space
+  The constructor initializes the vectors and more importantly calculates 
+  important quantities such as volume and matrix computations representing
+  molecular computations.
+  ''' 
   def __init__(self, a0=[0.0,0.0,0.0], a1=[0.0, 0.0, 0.0], a2=[0.0,0.0,0.0]):
     
     allVectors = [a0, a1, a2]
@@ -75,10 +89,14 @@ class UnitCell(object):
       self.an2h.append(0.5 * self.norm(self.anMatrix[index]))
       self.bn2h.append(0.5 * self.norm(self.bnMatrix[index]))
               
+  '''
+  Computes the norm of the three dimensional molecule.
+  The norm roughly describes the length or size of the vector.
+  '''
   def norm(self, a):
     return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
     
-    
+  
   def scalarProduct(self, a, b):
     return sum([elem1 * elem2 for elem1, elem2 in zip(a, b)])
     
