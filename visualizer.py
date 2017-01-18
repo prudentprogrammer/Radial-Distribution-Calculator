@@ -147,7 +147,11 @@ class visualizer(object):
     self.twoInputFiles = twoInputFiles
     
   def generateVisualFile(self):
-    tickValues = str(seq(0, float(self.xlim), 0.5))
+    tickValues = ''
+    if self.xlim != '':
+      tickValues = str(seq(0, float(self.data[-1][1]), 0.5))
+    else:
+      tickValues = str(seq(0, float(self.xlim), 0.5))
     #print tickValues
 
     columnStringInterpolation = ''
@@ -171,6 +175,25 @@ class visualizer(object):
       var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
       columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
       '''
+
+    xAxisString = ''
+    yAxisString = ''
+    if self.xlim != '':
+      xAxisString = r'''
+      hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)', ticks: %s},
+      ''' % (self.xlim, tickValues)
+    if self.ylim != '':
+      yAxisString = r'''
+      vAxis: {viewWindow: {max: %s}, title: 'g(r)'}
+      ''' % self.ylim
+  
+    if xAxisString == '' or yAxisString == '':
+      xAxisString = "hAxis: {title: 'r (Angstrom)', ticks: %s},\n" % tickValues
+      yAxisString = "vAxis: {title: 'g(r)'}\n" 
+
+    boundsString = xAxisString + yAxisString
+
+
 
     htmlString = r"""
     <html>
@@ -219,10 +242,7 @@ class visualizer(object):
                   height: 800, 
                   pointSize: 5, 
                   lineWidth: 2,
-                  hAxis: {title: 'r (Angstrom)', ticks: %s},
-                  vAxis: {title: 'g(r)'}
-                  //hAxis: {viewWindow: {max: stuff}, title: 'r (Angstrom)', ticks: stuff},
-                  //vAxis: {viewWindow: {max: stuff}, title: 'g(r)'}
+                  %s
                 },
                 'dataTable': data
             });
@@ -307,8 +327,8 @@ class visualizer(object):
       pprint.pformat(self.data), 
       columnStringInterpolation,
       gc.first_molecule_name, 
-      gc.second_molecule_name, 
-      tickValues, 
+      gc.second_molecule_name,
+      boundsString,
       gr2Add,
       dataframeAdjust,
       str(self.total_nconfigs) , 
