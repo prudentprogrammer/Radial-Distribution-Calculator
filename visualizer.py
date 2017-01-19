@@ -37,13 +37,14 @@ input_source2 = ''
 # ./visualizer.py cum_counts.txt cum_counts2.txt
 # ./visualizer.py cum_counts.txt cum_counts2.txt -x 5 -y 5
 
-if sys.argv[2] == '':
-  input_source2 = ''
-elif sys.argv[2] == '-x' or sys.argv[2] == '--x':
-  input_source2 = ''
-# If it is a file
-elif ".txt" in sys.argv[2]:
-  input_source2 = sys.argv[2]
+if argc > 2:
+  if sys.argv[2] == '':
+    input_source2 = ''
+  elif sys.argv[2] == '-x' or sys.argv[2] == '--x':
+    input_source2 = ''
+  # If it is a file
+  elif ".txt" in sys.argv[2]:
+    input_source2 = sys.argv[2]
 
 print argc
 print sys.argv
@@ -148,7 +149,7 @@ class visualizer(object):
     
   def generateVisualFile(self):
     tickValues = ''
-    if self.xlim != '':
+    if self.xlim == '':
       tickValues = str(seq(0, float(self.data[-1][1]), 0.5))
     else:
       tickValues = str(seq(0, float(self.xlim), 0.5))
