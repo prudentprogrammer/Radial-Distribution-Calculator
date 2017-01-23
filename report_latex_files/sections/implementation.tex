@@ -1,0 +1,43 @@
+
+\subsection*{Previous Setup}
+
+Before the start of the project, small scripts were written in C++ and Python to visualize the molecular data. There was a separate Python script which performed the extraction of the data from the XML and a separate C++ script which computed the radial distribution function. After the two scripts were ran, the user then had to use the GNU plot to graph the respective outputs. The overall setup can be described by the three blocks in the picture:
+
+
+
+
+
+With respect to the picture, the following files performed the following functions: 
+
+\begin{itemize}
+        
+    \item \verb|qbox_xyz.py|: Handles the input data which is in a XML format which contain details about the simulation and outputs a .xyz simulation format to be used by the \verb|gofr.C| program.
+    
+    \item \verb|sax_handler.py|: This script has the main logic for progressively parsing the given XML document and only scraping the important data attributes required for the radial distribution computation and visualization in the later phases.
+
+    \item \verb|gofr.C|: Performed the radial distribution algorithm to generate the density and probability functions based on the given atomset to generate the appropriate values to be graphed.
+    
+    \item \verb|unitcell.C|: Represented an abstraction of a cell which has x, y, and z coordinates in three dimensional space.
+    
+    \item \verb|./plotgofr|: A linux executable script which visualizes the final output data using GNU Plot.
+    
+\end{itemize}
+
+
+
+
+
+One advantage of this approach was that the computation of the radial distribution function was very efficient. However, there were multiple problems with this approach:
+
+\begin{itemize}
+    \item Flexibility: This approach was not very flexible because a separate script had to be run at each phase of the process. In addition, the output data format was very similar to that of the GNU Plotting format, so if the user wanted to perform graphical analysis using a different software, it was a challenge.
+    
+    \item Usability: Since all these scripts used different languages and in some cases platform dependent, integration was virtually absent. In other words, there was not one single platform which the user could run all the scripts but rather everything was split across different platforms and languages. In addition, the user had to switch between python, C++, and bash scripts which could be inconvenient in some cases. 
+    
+    \item Interactivity: This was probably the biggest problem with the previous approach. The generation of the graphs was static in the sense that if the user wanted to visualize atomsets of various sizes, he or she would need to run the corresponding scripts again and again for different configurations. In other words, there was not a way in which the user can \textit{interactively} examine and analyze the atomset data and visually examine how it would change over a period of time.
+\end{itemize}
+
+\subsection*{New Setup}
+
+To eliminate most or all of the problems mentioned with the previous approach, a ``better'' solution was developed in terms of the scope of the project. Doing so involved developing and integrating all the scripts in one platform using one language. The language of choice which was chosen during the main development was Python. This was to make the scripts easier to run and also make code extremely portable and usable. However, one downside with this approach was the main performance of the radial distribution function. This was the only bottleneck of the pipeline. (The performance issues will be explained later sections). The overall pipeline of the following project was as follows:
+
