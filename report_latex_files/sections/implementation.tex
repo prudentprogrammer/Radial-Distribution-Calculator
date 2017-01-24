@@ -11,11 +11,11 @@ With respect to the picture, the following files performed the following functio
 
 \begin{itemize}
         
-    \item \verb|qbox_xyz.py|: Handles the input data which is in a XML format which contain details about the simulation and outputs a .xyz simulation format to be used by the \verb|gofr.C| program.
+    \item \verb|qbox_xyz.py|: Progressively parses the given XML document and only scrapes the appropriate values defined in the \verb|sax_handler.py|. Handles the input data which is in a XML format which contain details about the simulation and outputs a .xyz simulation format to be used by the \verb|gofr.C| program.
     
-    \item \verb|sax_handler.py|: This script has the main logic for progressively parsing the given XML document and only scraping the important data attributes required for the radial distribution computation and visualization in the later phases.
+    \item \verb|sax_handler.py|: This script stores the important data attributes required to scrape from the xml to used for the radial distribution computation and visualization in the later phases.
 
-    \item \verb|gofr.C|: Performed the radial distribution algorithm to generate the density and probability functions based on the given atomset to generate the appropriate values to be graphed.
+    \item \verb|gofr.C|: Performes the radial distribution algorithm to generate the density and probability functions based on the given atomset.
     
     \item \verb|unitcell.C|: Represented an abstraction of a cell which has x, y, and z coordinates in three dimensional space.
     
@@ -30,14 +30,79 @@ With respect to the picture, the following files performed the following functio
 One advantage of this approach was that the computation of the radial distribution function was very efficient. However, there were multiple problems with this approach:
 
 \begin{itemize}
-    \item Flexibility: This approach was not very flexible because a separate script had to be run at each phase of the process. In addition, the output data format was very similar to that of the GNU Plotting format, so if the user wanted to perform graphical analysis using a different software, it was a challenge.
+    \item Flexibility: This approach was not very flexible because a separate script had to be run during each phase of the process. In addition, the output data format was very similar to that of the GNU Plotting format, so if the user wanted to perform graphical analysis using a different software, it was a challenge.
     
-    \item Usability: Since all these scripts used different languages and in some cases platform dependent, integration was virtually absent. In other words, there was not one single platform which the user could run all the scripts but rather everything was split across different platforms and languages. In addition, the user had to switch between python, C++, and bash scripts which could be inconvenient in some cases. 
+    \item Usability: Since all these scripts used different languages and in some cases were platform dependent, integration was virtually absent. In other words, there was not one single platform which the user could run all the scripts but rather everything was split across different platforms and languages. In addition, the user had to switch between python, C++, and bash scripts which could be inconvenient in some cases. 
     
     \item Interactivity: This was probably the biggest problem with the previous approach. The generation of the graphs was static in the sense that if the user wanted to visualize atomsets of various sizes, he or she would need to run the corresponding scripts again and again for different configurations. In other words, there was not a way in which the user can \textit{interactively} examine and analyze the atomset data and visually examine how it would change over a period of time.
 \end{itemize}
 
 \subsection*{New Setup}
 
-To eliminate most or all of the problems mentioned with the previous approach, a ``better'' solution was developed in terms of the scope of the project. Doing so involved developing and integrating all the scripts in one platform using one language. The language of choice which was chosen during the main development was Python. This was to make the scripts easier to run and also make code extremely portable and usable. However, one downside with this approach was the main performance of the radial distribution function. This was the only bottleneck of the pipeline. (The performance issues will be explained later sections). The overall pipeline of the following project was as follows:
+To eliminate most or all of the problems mentioned with the previous approach, a ``better'' solution was developed in terms of the scope of the project. Doing so involved developing and integrating all the scripts in one platform using one language. The main language of choice which was chosen during the development phase was Python. This was to make the scripts easier to run and also make code extremely portable and usable. However, one downside with this approach was the main performance of the radial distribution function. This was the only bottleneck in the pipeline. (The performance issues will be explained later sections). The overall pipeline of the following project was as follows:
+
+
+
+
+
+
+With respect to the new setup, the following files performed the following functions: 
+
+\begin{itemize}
+        
+    \item \verb|qbox_xyz.py|: Mostly remains unchanged with respect to the previous setup.
+    
+    \item \verb|sax_handler.py|: Also mostly remains unchanged with respect to the previous setup.
+
+    \item \verb|gofr.py|: Computes the radial distribution function and the probability density functions. This file represents the translation of the C++ gofr.C code to python code. 
+    
+    \item \verb|unitcell.py|: Represents an abstraction of a three-dimensional cell, however the main code is written in Python.
+    
+    \item \verb|run_gofr.py|: Runs the main gofr.py with the given inputs.
+
+    \item \verb|visualizer.py|: This is an important file which generates a .html page containing the interactive visualization of the atomset.
+    
+\end{itemize}
+
+
+
+\subsection*{Transition from C++ code to Python code}
+
+
+\textbf{Differences}
+Even though most of the functionality can be replicated and translated well in Python from C++, there are a few distinctions to be made. For instance, the operator overloading feature in C++ is a common practice whereas higher level languages such as Python or Java use function calls to replicate the effect. This was indeed the case with files such as \verb|unitcell.py|. In the C++ code, operators such as / (division), * (multiplication), etc were overloaded for vectors whereas the Python code achieved the same effect using function calls such as \verb|scalarProduct()| , \verb|length()|, etc.
+
+Some other difference with the Python code was making the scripts as modular as possible in order to debug and create an efficient and a clean pipeline. Doing so not only improves code readability but is also easy to maintain. 
+
+\textbf{Similarities}
+
+The C++ code and Python code have a lot of similarities, especially for files such as \verb|UnitCell| and |gofr|. The code and logic were mostly translated line by line from C++ and Python, and therefore the name of function calls and the constructors have also been provided the same names. The Object-Oriented paradigm has also been preserved across the translation and therefore the \verb|UnitCell.py| and \verb|Gofr.py| have corresponding constructors along with getters and setters. 
+
+\subsection*{Performance Issues during translation}
+
+The biggest challenge encountered was the performance of the radial distribution algorithm in Python. In short, this algorithm has a $O(n^2)$ time complexity.  
+
+\begin{lstlisting}[language=Python, caption=Python Code which computes the gofr.]
+ for i in range(species_1_count):
+    for j in range(species_2_count):
+      first_vector = tau[isp1[i]]
+      second_vector = tau[isp2[j]]
+      
+      difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
+      difference_vector = uc.fold_in_ws(difference_vector)
+      scaled_vec = [x / dr for x in difference_vector]
+      
+      length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
+     
+      k = (int) (length_scaled_vec + 0.5)
+      if k < nbin:
+        count[k] += 1
+\end{lstlisting}
+
+In terms of functionalities, both pieces of code produce the same results, however they vary significantly in performance. For instance, running the C++ code on $2,000$ atomsets takes about $40$ seconds, whereas when the same corresponding Python code takes $15$ mins! This is due to the nature of the interpreted languages and restrictions to manipulations at lower levels. In addition, the C++ code can be precompiled with some optimizations depending on the platform, which yields efficient results. 
+
+
+
+
+
 
