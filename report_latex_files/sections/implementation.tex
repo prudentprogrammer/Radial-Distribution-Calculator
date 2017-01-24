@@ -99,10 +99,46 @@ The biggest challenge encountered was the performance of the radial distribution
         count[k] += 1
 \end{lstlisting}
 
-In terms of functionalities, both pieces of code produce the same results, however they vary significantly in performance. For instance, running the C++ code on $2,000$ atomsets takes about $40$ seconds, whereas when the same corresponding Python code takes $15$ mins! This is due to the nature of the interpreted languages and restrictions to manipulations at lower levels. In addition, the C++ code can be precompiled with some optimizations depending on the platform, which yields efficient results. 
+In terms of functionalities, both pieces of code produce the same results, however they vary significantly in performance. For instance, running the C++ code on $2,000$ atomsets takes about $50$ seconds, whereas when the same corresponding Python code takes $15$ mins! This is due to the nature of the interpreted languages and restrictions to manipulations at lower levels. In addition, the C++ code can be precompiled with some optimizations depending on the platform, which yields efficient results. In summary, the differences in performance can be highlighted in the following table:
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ Size of Atomset & Performance time in Python & Performance time in C++ 
+ \hline
+ $20$ & $5$ sec & $9$ sec \\ 
+ $2000$ & $50$ sec & $15$ \textit{mins} \\ 
+ \hline
+\end{tabular}
+\end{center}
 
 
+\subsection*{New Features Added during translation Phase}
+
+\begin{itemize}
+
+\item Stepsize: Several new features were added during the translation. For instance, the precomputed radial function values were stored for every $n^{th}$ stepsize. By doing so, the entire application was made customizable and interactive for the visualization phase. 
+
+\item Visualization: This was a powerful addition to the entire application. The visualization was performed in javascript and a corresponding python script generated the html page. In addition, the visualization was interactive and customizable according to the user's needs.
+
+\end{itemize}
+
+\subsection*{Customizability according to user's needs}
+
+To customizable according to the user's needs, the application has a configuration file. In this file, there are various parameters which the user can adjust according based on the goal of interest. The configuration file looks like the following:
 
 
+\begin{lstlisting}[language=Python, caption=Config file for setting parameters during the run.]
+# Configuration file
+
+first_input_source = "./input_files/md120_short.r"
+second_input_source = './input_files/md120_short2.r'
+all_or_first = "a"
+
+first_molecule_name = "H"
+second_molecule_name = "H"
+rmax = 5
+dr = 0.05
+stepsize = 1
+\end{lstlisting}
 
 
