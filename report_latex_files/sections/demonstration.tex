@@ -1,1 +1,6 @@
 Running the following application is simple, the user has to first edit a configuration file. This can be found in \verb|gofr_config.py|. In this configuration file, the user specifies the first input source and second input source. If the second input source is empty, the second field is left empty. The user can also specify whether all the configs needed to be taken into account or just the first atomset. The last 5 variables are the important parameters set by the user which is used in the gofr program. These variables represent important quantities such as the atoms being compared and the stepsize to be recorded.
+
+
+
+
+After this step is performed, the user can then run the application via python. In this case, the user types ``python run_gofr.py''. This program reads the configuration parameters from the file, extracts the data from the input xml source(s), and runs the gofr algorithm behind the scenes. As a result an output text file called \verb|cum_counts.txt| is outputted for the visualizaiton phase.
