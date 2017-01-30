@@ -1,7 +1,7 @@
 # Configuration file
 
-first_input_source = "./input_files/md120_short.r"
-second_input_source = './input_files/md120_short2.r'
+first_input_source = "./input_files/md120.r"
+second_input_source = ""
 all_or_first = "a"
 
 first_molecule_name = "H"

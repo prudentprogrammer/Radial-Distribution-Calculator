@@ -295,8 +295,8 @@ class visualizer(object):
               myLine.setDataTable(columnsTable);
               myLine.draw();
               
-              //imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() + '">';
-              //console.log(imageLink.innerHTML);
+              imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() + '">';
+              console.log(imageLink.innerHTML);
             }
             
           }
