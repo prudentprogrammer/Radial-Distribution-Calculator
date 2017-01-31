@@ -1,1 +1,734 @@
-Appendix Source Code goes here
+\section*{Appendix}
+
+\begin{minted}{python}
+
+'''
+Filename: run_gofr.py
+'''
+import unitcell
+import sys
+from math import sqrt, pi, pow
+from qbox_xyz import QBox_XYZ
+import gofr_config as gc
+from gofr import Gofr
+
+if __name__ == "__main__":
+  if gc.first_input_source != '':
+    x1 = QBox_XYZ(gc.all_or_first, gc.first_input_source)
+    output = x1.process()
+    output =  (' '.join(output))
+    output = output.split("\n")
+    output = [x.strip() for x in output]
+    output = [x for x in output if len(x) != 0]
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts.txt")
+    gofr_obj.process()
+    print 'Done processing first input source...'
+  
+  
+  if gc.second_input_source != '':
+    x2 = QBox_XYZ(gc.all_or_first, gc.second_input_source)
+    output = x2.process()
+    output =  (' '.join(output))
+    output = output.split("\n")
+    output = [x.strip() for x in output]
+    output = [x for x in output if len(x) != 0]
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts2.txt")
+    gofr_obj.process()
+    print 'Done processing second input source...'
+
+##############################################################
+'''
+Filename: unitcell.py
+'''
+'''
+Filename: unitcell.py
+Author: Arjun Bharadwaj (translated from C++ code written by Dr.Gygi)
+Description: This file represents a 3-d molecule in space.
+'''
+
+import math
+from pprint import pprint
+
+class UnitCell(object):
+
+  '''
+  Class constructor
+  Arguments: a0, a1, a2 represent the three x, y, and z vectors in space
+  The constructor initializes the vectors and more importantly calculates 
+  important quantities such as volume and matrix computations representing
+  molecular computations.
+  ''' 
+  def __init__(self, a0=[0.0,0.0,0.0], a1=[0.0, 0.0, 0.0], a2=[0.0,0.0,0.0]):
+    
+    allVectors = [a0, a1, a2]
+    self.aMatrix = a0 + a1 + a2
+    
+    # volume = det(A)
+    self.volume = self.scalarProduct (a0, self.crossProduct(a1, a2))
+    
+    if self.volume > 0.0:
+      fac = 1.0 / self.volume
+      amt0 = [fac * elem for elem in self.crossProduct(a1, a2)]
+      amt1 = [fac * elem for elem in self.crossProduct(a2, a0)]
+      amt2 = [fac * elem for elem in self.crossProduct(a0, a1)]
+      
+      aMatrixInverse = []
+      for e1, e2, e3 in zip(amt0, amt1, amt2):
+        aMatrixInverse.append(e1)
+        aMatrixInverse.append(e2)
+        aMatrixInverse.append(e3)
+        
+      aMatrixInvTranspose = amt0 + amt1 + amt2
+      
+      self.bVec0 = [2.0 * math.pi * elem for elem in amt0]
+      self.bVec1 = [2.0 * math.pi * elem for elem in amt1]
+      self.bVec2 = [2.0 * math.pi * elem for elem in amt2]
+      
+      self.bMatrix = self.bVec0 + self.bVec1 + self.bVec2
+    else:
+      # Initialize everything to zeros
+      self.bVec0 = [0.0] * 3
+      self.bVec1 = [0.0] * 3
+      self.bVec2 = [0.0] * 3
+      self.aMatrixInverse = [0.0] * 9
+      self.bMatrix = [0.0] * 9
+    
+    bVectors = [self.bVec0, self.bVec1, self.bVec2]
+    
+    self.anMatrix = []
+    self.anMatrix.append(allVectors[0])
+    self.anMatrix.append(allVectors[1])
+    self.anMatrix.append(allVectors[2])
+    self.anMatrix.append([x + y for x, y in zip(allVectors[0], allVectors[1])])
+    self.anMatrix.append([x - y for x, y in zip(allVectors[0], allVectors[1])])
+    self.anMatrix.append([x + y for x, y in zip(allVectors[1], allVectors[2])])
+    self.anMatrix.append([x - y for x, y in zip(allVectors[1], allVectors[2])])
+    self.anMatrix.append([x + y for x, y in zip(allVectors[2], allVectors[0])])
+    self.anMatrix.append([x - y for x, y in zip(allVectors[2], allVectors[0])])
+    self.anMatrix.append([x + y + z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x - y - z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x + y - z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x - y + z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
+    
+    self.bnMatrix = []
+    self.bnMatrix.append(bVectors[0])
+    self.bnMatrix.append(bVectors[1])
+    self.bnMatrix.append(bVectors[2])
+    self.bnMatrix.append([x + y for x, y in zip(bVectors[0], bVectors[1])])
+    self.bnMatrix.append([x - y for x, y in zip(bVectors[0], bVectors[1])])
+    self.bnMatrix.append([x + y for x, y in zip(bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x - y for x, y in zip(bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x + y for x, y in zip(bVectors[2], bVectors[0])])
+    self.bnMatrix.append([x - y for x, y in zip(bVectors[2], bVectors[0])])
+    self.bnMatrix.append([x + y + z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x - y - z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x + y - z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x - y + z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
+         
+    self.an2h = []
+    self.bn2h = []
+    for index in range(len(self.anMatrix)):
+      self.an2h.append(0.5 * self.norm(self.anMatrix[index]))
+      self.bn2h.append(0.5 * self.norm(self.bnMatrix[index]))
+              
+  '''
+  Computes the norm of the three dimensional molecule.
+  The norm roughly describes the length or size of the vector.
+  '''
+  def norm(self, a):
+    return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
+    
+  
+  def scalarProduct(self, a, b):
+    return sum([elem1 * elem2 for elem1, elem2 in zip(a, b)])
+    
+  def crossProduct(self, a, b):
+    # a.y * b.z - a.z * b.y
+    firstComponent = a[1] * b[2] - a[2] * b[1]
+    # a.z * b.x - a.x * b.z ,
+    secondComponent = a[2] * b[0] - a[0] * b[2]
+    # a.x * b.y - a.y * b.x
+    thirdComponent = a[0] * b[1] - a[1] * b[0]
+    return [ firstComponent, secondComponent, thirdComponent ]  
+  
+  
+  def fold_in_ws(self, v):
+    epsilon = 1.0e-10
+    done = False
+    maxIter = 10
+    iterations = 0
+    
+    while not done and iterations < maxIter:
+      done = True
+      i = 0
+      while i < 13 and done:
+        sp = self.scalarProduct(v, self.anMatrix[i])
+        if sp > self.an2h[i] + epsilon:
+          done = False
+          for index in range(len(self.anMatrix[i])):
+            v[index] = v[index] - self.anMatrix[i][index]
+          #v -= self.anMatrix[i]
+          while self.scalarProduct(v, self.anMatrix[i]) > self.an2h[i] + epsilon :
+            for index in range(len(self.anMatrix[i])):
+              v[index] = v[index] - self.anMatrix[i][index]
+        elif sp < -self.an2h[i] - epsilon:
+          done = False
+          for index in range(len(self.anMatrix[i])):
+            v[index] = v[index] + self.anMatrix[i][index]
+          #v -= self.anMatrix[i]
+          while self.scalarProduct(v, self.anMatrix[i]) < -self.an2h[i] - epsilon :
+            for index in range(len(self.anMatrix[i])):
+              v[index] = v[index] + self.anMatrix[i][index]
+        i += 1
+      
+      iterations += 1
+    return v
+    
+  def getVolume(self):
+    return self.volume
+   
+##############################################################
+'''
+Filename: gofr.py
+'''
+import unitcell
+import sys
+from math import sqrt, pi, pow
+import time
+import pprint
+import ast
+import csv
+import gofr_config as gc
+import collections
+
+
+class Gofr(object):
+  def __init__(self, xyzInput, name1, name2, rmax, dr, fileName):
+    self.xyzInput = xyzInput
+    self.name1 = name1
+    self.name2 = name2
+    self.rmax = rmax
+    self.dr = dr
+    self.fileName = fileName
+    
+  def process(self):
+    name1 = self.name1
+    name2 = self.name2
+    rmax = self.rmax
+    dr = self.dr
+    nconfig = 0
+    
+    # This list holds the position of the atoms
+    line_index = 0
+  
+    # Store the file contents in the list
+    file_content = self.xyzInput
+
+    # Read the number of atoms in the first line
+    number_atoms = int(file_content[line_index])
+    # Corresponds to the first atom
+    isp1 = [0] * number_atoms
+    # Corresponds to the second atom
+    isp2 = [0] * number_atoms
+    
+    tau = [None] * number_atoms
+    names_of_atoms = [None] * number_atoms
+    
+    species_1_count = 0
+    species_2_count = 0
+    
+    line_index += 1
+  
+    nbin = (int) (rmax / dr)
+  
+    count = [0.0] * nbin
+    omega = 0.0
+    cum_counts = {}
+    
+    # Loop through the file contents line by line
+    while line_index < len(file_content):
+      nconfig += 1
+    
+      line_clean = file_content[line_index].split()
+
+      # The iteration number
+      iteration = line_clean[0]
+      # The D3 vectors
+      a0 = [float(x) for x in line_clean[1:4]]
+      a1 = [float(x) for x in line_clean[4:7]]
+      a2 = [float(x) for x in line_clean[7:10]]
+
+      line_index += 1
+
+      uc = unitcell.UnitCell(a0, a1, a2)
+      omega = uc.getVolume()
+
+      for i in range(number_atoms):
+        line_clean = file_content[line_index].split()
+        line_index += 1
+      
+        nm = line_clean[0]
+        d3_vec = [float(x) for x in line_clean[1:4]]
+        tau[i] = d3_vec
+        if nconfig == 1:
+          names_of_atoms.append(nm)
+          if name1 in nm:
+            isp1[species_1_count] = i
+            species_1_count += 1
+          if name2 in nm:
+            isp2[species_2_count] = i
+            species_2_count += 1
+      
+          
+      for i in range(species_1_count):
+        for j in range(species_2_count):
+          first_vector = tau[isp1[i]]
+          second_vector = tau[isp2[j]]
+          
+          difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
+          difference_vector = uc.fold_in_ws(difference_vector)
+          scaled_vec = [x / dr for x in difference_vector]
+          
+          length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
+         
+          k = (int) (length_scaled_vec + 0.5)
+          if k < nbin:
+            count[k] += 1
+      
+      #print count
+      if nconfig % gc.stepsize == 0:
+        cum_counts[nconfig] = ast.literal_eval(str(count))
+
+      #print '\n\n'
+      #print cum_counts
+       
+      if line_index < len(file_content):
+        number_atoms = int(file_content[line_index])
+        line_index += 1
+    
+    if species_1_count == 0:
+      print ' no atoms %s found.' % name1
+      sys.exit(1)
+    if species_2_count == 0:
+      print ' no atoms %s found.' % name2
+      sys.exit(1)
+  
+    print '%d %s atoms found.' % (species_1_count, name1)
+    print '%d %s atoms found.' % (species_2_count, name2)
+  
+        
+    # normalization differs for same species vs different species
+    npairs = 0
+    if name1 == name2:
+      npairs = species_1_count * (species_2_count - 1)
+    else:
+      npairs = species_1_count * species_2_count
+    
+    visual_data = []
+    initial_data = ['NConfig', 'Radius', 'G(r)']
+    visual_data.append(initial_data)
+    counter = 1
+
+    cum_counts = collections.OrderedDict(sorted(cum_counts.items()))
+
+    for key, val in cum_counts.items():
+      for i in range(1, nbin):
+        r = i * dr
+        rmin = (i - 0.5) * dr
+        rmax = (i + 0.5) * dr
+        vshell = (4.0 * pi / 3.0) * (pow(rmax, 3.0) - pow(rmin, 3.0))
+        count_id = (vshell * npairs) / omega
+        g = val[i] / (count_id * gc.stepsize)
+        temp_data = [counter, r, g]
+        visual_data.append(temp_data )
+      
+      # Counter in outer loop records which config number it is
+      counter += 1
+           
+    with open(self.fileName,'w+') as fp:
+        a = csv.writer(fp, delimiter=',')
+        a.writerows(visual_data)
+    
+    n = 0.0
+    for i in range(1, nbin):
+      r = i * dr
+      n += count[i] / (species_1_count * nconfig)
+      print 'r, n = %s, %s' % (r, n)
+    
+
+
+
+##############################################################
+'''
+Filename: visualizer.py
+'''
+
+
+#!/usr/bin/python
+import pprint
+import gofr_config as gc
+import urllib2
+import sys
+import pprint
+import os.path
+import getopt
+import csv
+
+
+def handle_files(fp, source_file):
+  fp = None
+  # test if input_source is a local file
+  # if not, process as a URL
+  print 'sf = ', source_file
+  if ( os.path.isfile(source_file) ):
+    fp = open(source_file)
+  else:
+    # attempt to open as a URL
+    try:
+      fp = urllib2.urlopen(source_file)
+    except (ValueError,urllib2.HTTPError) as e:
+      print 'Error opening the URL'
+      #sys.exit()
+  
+  return fp 
+
+
+argc = len(sys.argv)
+input_source1 = sys.argv[1]
+input_source2 = ''
+
+
+# ./visualizer.py cum_counts.txt 
+# ./visualizer.py cum_counts.txt -x 5 -y 5
+# ./visualizer.py cum_counts.txt cum_counts2.txt
+# ./visualizer.py cum_counts.txt cum_counts2.txt -x 5 -y 5
+
+if argc > 2:
+  if sys.argv[2] == '':
+    input_source2 = ''
+  elif sys.argv[2] == '-x' or sys.argv[2] == '--x':
+    input_source2 = ''
+  # If it is a file
+  elif ".txt" in sys.argv[2]:
+    input_source2 = sys.argv[2]
+
+#print argc
+#print sys.argv
+
+
+#sys.exit(0)
+
+try:
+  if input_source2 == '':
+    opts, args = getopt.getopt(sys.argv[2:], "hx:y:", ["help", "xlim=", "ylim="])
+  else:
+    opts, args = getopt.getopt(sys.argv[3:], "hx:y:", ["help", "xlim=", "ylim="])
+except getopt.GetoptError:
+  print 'visualizer.py counts.dat -x 4 -y 4'
+  sys.exit(2)
+  
+#print opts
+#print args
+xlim = ''
+ylim = ''
+for o, a in opts:
+    if o in ('-x', '--xlim'):
+        xlim=a
+    elif o in ('-y', '--ylim'):
+        ylim=a
+    else:
+        print("Usage: %s -x 4 -y 4" % sys.argv[0])
+     
+#print ("X Bound : %s and Y bound: %s" % (xlim,ylim) )
+
+
+#print 'input_source1 = %s' % input_source1
+#print 'input_source2 = %s' % input_source2
+
+
+fp = None
+fp = handle_files(fp, input_source1)
+
+
+
+vis_data = []
+first_source_vals = {}
+second_source_vals = {}
+
+if input_source2 == '':
+  vis_data.append(['NConfig','Radius', 'Gr1']) # Only one file
+elif input_source2 != '':
+  vis_data.append(['NConfig','Radius', 'Gr1', 'Gr2']) # Two files
+
+rownum = 0
+try:
+  reader = csv.reader(fp) 
+  for row in reader:
+    if rownum != 0:
+      key = row[0] + ',' + row[1]
+      first_source_vals[key] = row[2]
+      float_list = [float(x) for x in row]
+      if input_source2 == '':
+        vis_data.append(float_list)
+    rownum += 1
+finally:
+  fp.close()
+  
+if input_source2 != '':
+  fp = handle_files(fp, input_source2)
+  rownum = 0
+  try:
+    reader = csv.reader(fp) 
+    for row in reader:
+      if rownum != 0:
+        try:
+          key = row[0] + ',' + row[1]
+          tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
+          vis_data.append(tempList)
+        except KeyError:
+          continue
+      rownum += 1
+  finally:
+    fp.close()
+
+#pprint.pprint(vis_data)
+#sys.exit(0)
+
+
+def seq(start, stop, step=1):
+    n = int(round((stop - start)/float(step)))
+    if n > 1:
+        return([start + step*i for i in range(n+1)])
+    else:
+        return([])
+  
+#pprint.pprint(vis_data)
+
+class visualizer(object):
+
+  def __init__(self, data, nconfig, xlim, ylim, twoInputFiles):
+    self.data = data
+    self.total_nconfigs = nconfig
+    self.xlim = xlim
+    self.ylim = ylim
+    self.twoInputFiles = twoInputFiles
+    
+  def generateVisualFile(self):
+    tickValues = ''
+    if self.xlim == '':
+      tickValues = str(seq(0, float(self.data[-1][1]), 0.5))
+    else:
+      tickValues = str(seq(0, float(self.xlim), 0.5))
+    #print tickValues
+
+    columnStringInterpolation = ''
+    gr2Add = ''
+    dataframeAdjust = ''
+
+
+    if not self.twoInputFiles:
+      columnStringInterpolation = "'columns': [1, 2]"
+      gr2Add = "//columnsTable.addColumn('number', 'Gr2');"
+      dataframeAdjust = r'''
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue)]);
+      '''
+
+
+    else:
+      columnStringInterpolation = "'columns': [1, 2, 3]"
+      gr2Add = "columnsTable.addColumn('number', 'Gr2');"
+      dataframeAdjust = r'''
+      var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
+      var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
+      '''
+
+    xAxisString = ''
+    yAxisString = ''
+    if self.xlim != '':
+      xAxisString = r'''
+      hAxis: {viewWindow: {max: %s}, title: 'r (Angstrom)', ticks: %s},
+      ''' % (self.xlim, tickValues)
+    if self.ylim != '':
+      yAxisString = r'''
+      vAxis: {viewWindow: {max: %s}, title: 'g(r)'}
+      ''' % self.ylim
+  
+    if xAxisString == '' or yAxisString == '':
+      xAxisString = "hAxis: {title: 'r (Angstrom)', ticks: %s},\n" % tickValues
+      yAxisString = "vAxis: {title: 'g(r)'}\n" 
+
+    boundsString = xAxisString + yAxisString
+
+
+
+    htmlString = r"""
+    <html>
+      <head>
+        <!--Load the AJAX API-->
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+
+          // Load the Visualization API and the controls package.
+          google.charts.load('current', {'packages':['corechart', 'controls', 'table']});
+
+          // Set a callback to run when the Google Visualization API is loaded.
+          google.charts.setOnLoadCallback(drawDashboard);
+
+          // Callback that creates and populates a data table,
+          // instantiates a dashboard, a range slider and a pie chart,
+          // passes in the data and draws it.
+          function drawDashboard() {
+
+            // Create our data table.
+            var data = google.visualization.arrayToDataTable(%s);
+
+            // Create a dashboard.
+            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
+
+            var imageLink = document.getElementById('image_link');
+            // Create a range slider, passing some options
+            var nConfigSlider = new google.visualization.ControlWrapper({
+              'controlType': 'NumberRangeFilter',
+              'containerId': 'filter_div',
+              'options': {
+                'filterColumnLabel': 'NConfig',
+                "ui": {"label": "Frame Number"}
+              }
+             
+            });
+            
+            var myLine = new google.visualization.ChartWrapper({
+                'chartType' : 'LineChart',
+                'containerId' : 'chart_div',
+                'view': {%s},
+
+                'options': {
+                  'title': 'g_%s%s(r)',
+                  width: 1200, 
+                  height: 800, 
+                  pointSize: 5, 
+                  lineWidth: 2,
+                  %s
+                },
+                'dataTable': data
+            });
+           
+            var myTable = new google.visualization.ChartWrapper({
+               'chartType' : 'Table',
+               'containerId' : 'table_div',
+               'width': 800,
+               'height': 600,
+             });
+             
+            
+            dashboard.bind(nConfigSlider, myTable);
+            // Establish dependencies, declaring that 'filter' drives 'pieChart',
+            // so that the pie chart will only display entries that are let through
+            // given the chosen slider range.
+            dashboard.bind(nConfigSlider, myLine);
+
+            // Draw the dashboard.
+            dashboard.draw(data);
+            
+            google.visualization.events.addListener(nConfigSlider, 'ready', setInitialState);
+            google.visualization.events.addListener(nConfigSlider, 'statechange', setInitialState);
+            
+            function setInitialState() {
+              // Temporary Filtered Table
+              var columnsTable = new google.visualization.DataTable();
+              columnsTable.addColumn('number', 'nconfig');
+              columnsTable.addColumn('number', 'Radius');
+              columnsTable.addColumn('number', 'Gr1');
+              %s
+              
+              // Get Slider Information
+              var sliderState = nConfigSlider.getState();
+              var leftValue = sliderState.lowValue;
+              var rightValue = sliderState.highValue;
+              
+            
+              // Corresponds to indices in original data Ex:- [5, 6, 7, 8, 9]
+              var left_nconfigs = data.getFilteredRows([{column : 0, value: leftValue}]);
+              var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
+              
+              for(var i = 0; i < left_nconfigs.length; i++) {
+                var right_gofr_1 = data.getValue(right_nconfigs[i], 2);
+                var left_gofr_1 =  data.getValue(left_nconfigs[i], 2); 
+                
+                %s
+              }
+              myLine.setDataTable(columnsTable);
+              myLine.draw();
+              
+              imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() + '">';
+              console.log(imageLink.innerHTML);
+            }
+            
+          }
+        </script>
+      </head>
+
+      <body class="container">
+        <!--Div that will hold the dashboard-->
+        <div id="dashboard_div">
+          <div id="info">
+            NConfigs: %s <br /> 
+            Radius: %s <br /> 
+            Dr: %s <br />
+            First Molecule Name: %s <br />
+            Second Molecule Name: %s <br />
+          </div>
+          <!--Divs that will hold each control and chart-->
+          <div id="filter_div"></div>
+          <div id="chart_div"></div>
+          <div id="display_div"></div>
+          <div id="image_link"></div>
+          <div id="table_div"><!-- Table renders here --></div>
+          
+          
+        </div>
+      </body>
+    </html>
+    """ % (
+      pprint.pformat(self.data), 
+      columnStringInterpolation,
+      gc.first_molecule_name, 
+      gc.second_molecule_name,
+      boundsString,
+      gr2Add,
+      dataframeAdjust,
+      str(self.total_nconfigs) , 
+      str(gc.rmax), 
+      str(gc.dr), 
+      str(gc.first_molecule_name), 
+      str(gc.second_molecule_name)
+      )
+    # CURRENTLY X AND Y LIMITS ARE TAKEN OUT
+    #final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
+    final_filename = "test1.html"
+    f = open(final_filename,'w+')
+    f.write(htmlString)
+
+    
+
+
+nconfig = vis_data[-1][0]
+
+twoFiles = False
+
+if input_source2 != '':
+  twoFiles = True
+
+vis_obj = visualizer(vis_data, nconfig, xlim, ylim, twoFiles) 
+vis_obj.generateVisualFile()
+print ('Done generating visual file!')
+
+
+
+
+
+
+
+
+\end{minted}
