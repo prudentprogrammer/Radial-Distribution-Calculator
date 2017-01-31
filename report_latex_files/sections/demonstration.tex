@@ -1,6 +1,6 @@
 Running the following application is simple and easy to use. The user has to first edit a configuration file which is named \verb|gofr_config.py|. In this configuration file, the user specifies the first input source and second input source. If the second input source is not applicable, the second field is left empty. It should be noted that the URL can be a local file or a file on a server. The user can also specify whether all the atomsets in the data need to be considered or just the first atomset. The last 5 variables are the important parameters set by the user which is used in the gofr program. These variables represent important quantities such as the atoms being compared and the stepsize to be recorded. An example configuration file (before the application is run, might look like this):
 
-\begin{lstlisting}[language=Python, caption=Config file for setting parameters before the run.]
+\begin{minted}{python}
 # Configuration file
 
 first_input_source = "./input_files/md120_short.r"
@@ -12,23 +12,23 @@ second_molecule_name = "H"
 rmax = 5
 dr = 0.05
 stepsize = 1
-\end{lstlisting}
+\end{minted}
 
 
-After this step is performed, the user can then run the application via python. In this case, the user types ``python run_gofr.py'' in the terminal or command prompt. This program reads the configuration parameters from the file, extracts the data from the input xml source(s), and runs the gofr algorithm behind the scenes. As a result an output text file called \verb|cum_counts.txt| and a second file (if applicable), \verb|cum_counts2.txt| is outputted for the visualization phase. This file represents the cumulative counts recorded at every $nth$ stepsize. 
+After this step is performed, the user can then run the application via python. In this case, the user types ``python run\_gofr.py'' in the terminal or command prompt. This program reads the configuration parameters from the file, extracts the data from the input xml source(s), and runs the gofr algorithm behind the scenes. As a result an output text file called \verb|cum_counts.txt| and a second file (if applicable), \verb|cum_counts2.txt| is outputted for the visualization phase. This file represents the cumulative counts recorded at every $nth$ stepsize. 
 
 
-\begin{lstlisting}[language=bash, caption=Running the script.]
+\begin{minted}{bash}
 [~/Documents/Radial-Distribution-Calculator]$ python run_gofr.py
 ....
 ....
-\end{lstlisting}
+\end{minted}
 
-After this phase, the gofr algorithm is run on the given data and the intermediate values are recorded for visualization. The second step is as easy as the first and merely involves running the \verb|visualizer.py| script. This script is executed in a very similar manner to the run_gofr script, however the user can specify certain options such as x and y limits if neeeded. For instance, ``python visualizer.py cum_counts.txt -x 5 -y 5'' will generate a output html page with $x$ and $y$ bounds of $5$ and $5$. If the user does not specify $x$ and $y$, then the visualizer automatically sets the bounds for the diagram.
+After this phase, the gofr algorithm is run on the given data and the intermediate values are recorded for visualization. The second step is as easy as the first and merely involves running the \verb|visualizer.py| script. This script is executed in a very similar manner to the run\_gofr.py script, however the user can specify certain options such as x and y limits if needed. For instance, \verb| python visualizer.py cum_counts.txt -x 5 -y 5| will generate a output html page with $x$ and $y$ bounds of $5$ and $5$. If the user does not specify $x$ and $y$, then the visualizer automatically sets the bounds for the diagram.
 
-\begin{lstlisting}[language=bash, caption=Running the visualizer script.]
-[~/Documents/Radial-Distribution-Calculator]$ ./visualizer.py intermediate_files/cum_counts.txt intermediate_files/cum_counts2.txt 
-\end{lstlisting}
+\begin{minted}{bash}
+[~]$ ./visualizer.py intr_files/cum_counts.txt intr_files/cum_counts2.txt 
+\end{minted}
 
 
 \subsection*{Interactivity}
@@ -36,7 +36,7 @@ After this phase, the gofr algorithm is run on the given data and the intermedia
 A slider is present on the top of the output html webpage. Using this feature, the user can select the appropriate range (starting frame number and the ending frame number) and effectively analyze the configuration. When the user releases the sliders, the graph changes accordingly. Below is a diagram of what the slider looks like:
 
 
-\includegraphics[scale=0.25]{images/slider}
+\includegraphics[scale=0.50]{images/slider}
 
 
 
@@ -46,9 +46,11 @@ Below are two examples of applications run using the following scripts. The firs
 
 Examples of water with two short simulations (to prove that the application works for two input sources).
 
-\includegraphics[scale=0.25]{images/two_graphs_HH}
-\includegraphics[scale=0.25]{images/two_graphs_OH}
-\includegraphics[scale=0.25]{images/two_graphs_OO}
+\includegraphics[scale=0.40]{images/two_graphs_HH}
+
+\includegraphics[scale=0.40]{images/two_graphs_OH}
+
+\includegraphics[scale=0.40]{images/two_graphs_OO}
 
 
 
