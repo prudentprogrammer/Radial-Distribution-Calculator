@@ -46,8 +46,8 @@ if argc > 2:
   elif ".txt" in sys.argv[2]:
     input_source2 = sys.argv[2]
 
-print argc
-print sys.argv
+#print argc
+#print sys.argv
 
 
 #sys.exit(0)
@@ -61,8 +61,8 @@ except getopt.GetoptError:
   print 'visualizer.py counts.dat -x 4 -y 4'
   sys.exit(2)
   
-print opts
-print args
+#print opts
+#print args
 xlim = ''
 ylim = ''
 for o, a in opts:
@@ -73,11 +73,11 @@ for o, a in opts:
     else:
         print("Usage: %s -x 4 -y 4" % sys.argv[0])
      
-print ("X Bound : %s and Y bound: %s" % (xlim,ylim) )
+#print ("X Bound : %s and Y bound: %s" % (xlim,ylim) )
 
 
-print 'input_source1 = %s' % input_source1
-print 'input_source2 = %s' % input_source2
+#print 'input_source1 = %s' % input_source1
+#print 'input_source2 = %s' % input_source2
 
 
 fp = None
@@ -125,7 +125,7 @@ if input_source2 != '':
   finally:
     fp.close()
 
-pprint.pprint(vis_data)
+#pprint.pprint(vis_data)
 #sys.exit(0)
 
 
