@@ -5,7 +5,7 @@
 Before the start of the project, small scripts were written in C++ and Python to visualize the molecular data. There was a separate Python script which performed the extraction of the data from the XML and a separate C++ script which computed the radial distribution function. After the two scripts were ran, the user then had to use the GNU plot to graph the respective outputs. The overall setup can be described by the three blocks in the picture:
 
 
-
+\includegraphics[scale=0.50]{images/old_pipeline}\newline
 
 
 With respect to the picture, the following files performed the following functions: 
@@ -40,11 +40,12 @@ One advantage of this approach was that the computation of the radial distributi
 
 \subsection*{New Setup}
 
-To eliminate most or all of the problems mentioned with the previous approach, a ``better'' solution was developed in terms of the scope of the project. Doing so involved developing and integrating all the scripts in one platform using one language. The main language of choice which was chosen during the development phase was Python. This was to make the scripts easier to run and also make code extremely portable and usable. However, one downside with this approach was the main performance of the radial distribution function. This was the only bottleneck in the pipeline. (The performance issues will be explained later sections). The overall pipeline of the following project was as follows:
+To eliminate most or all of the problems mentioned with the previous approach, a ``better'' solution was developed in terms of the scope of the project. Doing so involved developing and integrating all the scripts in one platform using one language. The main language of choice which was chosen during the development phase was Python. This was to make the scripts easier to run and also to make code extremely portable and usable. However, one downside with this approach was the main performance of the radial distribution function, which was the only bottleneck in the pipeline. (The performance issues will be explained later sections). The overall pipeline of the following project was as follows:
 
 
+\includegraphics[scale=0.60]{images/new_pipeline}\newline
 
-\includegraphics[scale=0.30]{images/old_pipeline}\newline
+
 
 
 With respect to the new setup, the following files performed the following functions: 
@@ -71,6 +72,7 @@ With respect to the new setup, the following files performed the following funct
 
 
 \textbf{Differences}
+
 Even though most of the functionality can be replicated and translated well in Python from C++, there are a few distinctions to be made. For instance, the operator overloading feature in C++ is a common practice whereas higher level languages such as Python or Java use function calls to replicate the effect. This was indeed the case with files such as \verb|unitcell.py|. In the C++ code, operators such as / (division), * (multiplication), etc were overloaded for vectors whereas the Python code achieved the same effect using function calls such as \verb|scalarProduct()| , \verb|length()|, etc.
 
 Some other difference with the Python code was making the scripts as modular as possible in order to debug and create an efficient and a clean pipeline. Doing so not only improves code readability but is also easy to maintain. 
@@ -83,30 +85,34 @@ The C++ code and Python code have a lot of similarities, especially for files su
 
 The biggest challenge encountered was the performance of the radial distribution algorithm in Python. In short, this algorithm has a $O(n^2)$ time complexity.  
 
-\begin{lstlisting}[language=Python, caption=Python Code which computes the gofr.]
+\begin{minted}{python}
  for i in range(species_1_count):
     for j in range(species_2_count):
       first_vector = tau[isp1[i]]
       second_vector = tau[isp2[j]]
       
-      difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
+      difference_vector = [ai - bi 
+      for ai, bi in zip(first_vector, second_vector)]
       difference_vector = uc.fold_in_ws(difference_vector)
       scaled_vec = [x / dr for x in difference_vector]
       
-      length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
+      length_scaled_vec = sqrt(scaled_vec[0] ** 2 
+      + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
      
       k = (int) (length_scaled_vec + 0.5)
       if k < nbin:
         count[k] += 1
-\end{lstlisting}
+\end{minted}
 
 In terms of functionalities, both pieces of code produce the same results, however they vary significantly in performance. For instance, running the C++ code on $2,000$ atomsets takes about $50$ seconds, whereas when the same corresponding Python code takes $15$ mins! This is due to the nature of the interpreted languages and restrictions to manipulations at lower levels. In addition, the C++ code can be precompiled with some optimizations depending on the platform, which yields efficient results. In summary, the differences in performance can be highlighted in the following table:
 
 \begin{center}
 \begin{tabular}{ |c|c|c| } 
- Size of Atomset & Performance time in Python & Performance time in C++ 
+\hline
+ Size of Atomset & Performance time in Python & Performance time in C++  \\
  \hline
  $20$ & $5$ sec & $9$ sec \\ 
+ \hline
  $2000$ & $50$ sec & $15$ \textit{mins} \\ 
  \hline
 \end{tabular}
@@ -125,22 +131,4 @@ In terms of functionalities, both pieces of code produce the same results, howev
 
 \subsection*{Customizability according to user's needs}
 
-To customizable according to the user's needs, the application has a configuration file. In this file, there are various parameters which the user can adjust according based on the goal of interest. The configuration file looks like the following:
-
-\includegraphics[scale=0.30]{images/new_pipeline}\newline
-
-\begin{lstlisting}[language=Python, caption=Config file for setting parameters during the run.]
-# Configuration file
-
-first_input_source = "./input_files/md120_short.r"
-second_input_source = './input_files/md120_short2.r'
-all_or_first = "a"
-
-first_molecule_name = "H"
-second_molecule_name = "H"
-rmax = 5
-dr = 0.05
-stepsize = 1
-\end{lstlisting}
-
-
+To customizable according to the user's needs, the application has a configuration file. In this file, there are various parameters which the user can adjust according based on the goal of interest. (For more details of what the configuration looks like please refer to the next section).
