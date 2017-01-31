@@ -1,3 +1,5 @@
+\section*{Demonstration}
+
 Running the following application is simple and easy to use. The user has to first edit a configuration file which is named \verb|gofr_config.py|. In this configuration file, the user specifies the first input source and second input source. If the second input source is not applicable, the second field is left empty. It should be noted that the URL can be a local file or a file on a server. The user can also specify whether all the atomsets in the data need to be considered or just the first atomset. The last 5 variables are the important parameters set by the user which is used in the gofr program. These variables represent important quantities such as the atoms being compared and the stepsize to be recorded. An example configuration file (before the application is run, might look like this):
 
 \begin{minted}{python}
@@ -39,10 +41,7 @@ A slider is present on the top of the output html webpage. Using this feature, t
 \includegraphics[scale=0.50]{images/slider}
 
 
-
 Below are two examples of applications run using the following scripts. The first demonstration involves analyzing water and the following involves analyzing silicon. 
-
-
 
 Examples of water with two short simulations (to prove that the application works for two input sources).
 
@@ -52,17 +51,14 @@ Examples of water with two short simulations (to prove that the application work
 
 \includegraphics[scale=0.40]{images/two_graphs_OO}
 
-
-
 Examples of water with one large simulation
 
-%\includegraphics[scale=0.25]{images/one_graph_HH}
-%\includegraphics[scale=0.25]{images/one_graph_OH}
-%\includegraphics[scale=0.25]{images/one_graph_OO}
+\includegraphics[scale=0.40]{images/one_graph_HH}
 
+\includegraphics[scale=0.40]{images/one_graph_OH}
 
+\includegraphics[scale=0.40]{images/one_graph_OO}
 
 Explanation of silicon (molecules being compared are Si vs Si).
-
 
 %\includegraphics[scale=0.25]{images/one_graph_SiSi}
