@@ -4,7 +4,6 @@ Running the following application is simple and easy to use. The user has to fir
 
 \begin{minted}{python}
 # Configuration file
-
 first_input_source = "./input_files/md120_short.r"
 second_input_source = "./input_files/md120_short2.r"
 all_or_first = "a" # a means all and f means first
@@ -45,22 +44,55 @@ Below are two examples of applications run using the following scripts. The firs
 
 Examples of water with two short simulations (to prove that the application works for two input sources).
 
-\includegraphics[scale=0.40]{images/two_graphs_HH}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/two_graphs_HH}
+\caption{This figure represents the $G(r)$ function for a hydrogen vs hydrogen molecule for two different atomsets. As can be observed, there is a enormous peak initially followed by a few ups and downs. The peak around 1.5 suggests that there is a high probability of finding another Hydrogen atom.}
+\end{figure}
 
-\includegraphics[scale=0.40]{images/two_graphs_OH}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/two_graphs_OH}
+\caption{This figure represents the $G(r)$ function for a Oxygen and Hydrogen molecule for two different atomsets. This function varies from the H vs H as can be observed from the diagram.}
+\end{figure}
 
-\includegraphics[scale=0.40]{images/two_graphs_OO}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/two_graphs_OO}
+\caption{This figure represents the $G(r)$ function for a Oxygen and Oxygen molecule for two different atomsets. It is extremely useful as it portrays the behavior of oxygen atoms in the water molecule.}
+\end{figure}
+
+% \begin{figure}[h!]
+
+% \end{figure}
 
 Examples of water with one large simulation
 
-\includegraphics[scale=0.40]{images/one_graph_HH}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/one_graph_HH}
+\caption{This figure represents the $G(r)$ function for a larger simulation (namely 2000 atomsets). As can be observed from the previous diagrams, the curve is smoother.}
+\end{figure}
 
-\includegraphics[scale=0.40]{images/one_graph_OH}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/one_graph_OH}
+\caption{Figures can be interpreted similar to the previous diagrams.}
+\end{figure}
 
-\includegraphics[scale=0.40]{images/one_graph_OO}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/one_graph_OO}
+\caption{Figures can be interpreted similar to the previous diagrams.}
+\end{figure}
 
 Explanation of silicon (molecules being compared are Si vs Si).
 
-\includegraphics[scale=0.25]{images/one_graph_SiSi}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{images/one_graph_SiSi}
+\caption{This figure represents the $G(r)$ function run on an even larger simulation (namely $10,000$ atomsets). The two elements being compared here are Silicon and Silicon.}
+\end{figure}
 
-As we can see, the application is scalable and runs for extremely large datasets. In this particular example here, the simulation had 10,000 frames and the visualization app worked as intended.
+As we can see, the application is scalable and produces the correct results consistently. The first example had $20$ atomsets, the second $2,000$, and the third $10,000$ and the visualization app worked as intended.
