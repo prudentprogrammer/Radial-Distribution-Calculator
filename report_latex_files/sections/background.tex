@@ -1,30 +1,25 @@
 \section*{Introduction \& Background}
+Atomic-scale simulations are increasingly used in investigations of the structure of solids and liquids \cite{Frenkel}. In the case of disordered solids and liquids, the experimental determination of atomic structure relies on X-Ray scattering measurements. These can in turn be used to derive atomic pair distribution functions that describe the probability of finding an atom of a given species at a certain distance from an atom of another (or same) species. These functions can be used to infer local atomic properties, such as the number of nearest neighbors that an atom is bonded to, or the presence of local chemical order in the system (e.g. whether an atom of a given species is mostly surrounded by atoms of a different species).
 
-Often the case, researchers and scientists and interested in examining and making conclusions about the arrangement of molecules in certain substances. There are many methodologies of accomplishing this task but a simple one is a visual representation of the probabilities of atoms with respect to each other.
-This particular measure is known as the \textbf{pairwise correlation function (also known as the radial distribution function)}. Given a particle at a position, this function calculates the probability of finding another particle at a distance of $r$ away from a given reference particle. Here is an example of what the output plot looks like:
+The radial pair distribution function $g_{AB}(r)$ describing the probability of finding a particle of species B at a distance $r$ from a particle of species A is defined by
+\begin{equation}
+g_{AB}(r) = \frac{1}{N_A N_B} \sum_i^{N_A} \sum_j^{N_B} \langle \delta(|r_i-r_j|-r) \rangle
+\end{equation}
+where $N_A$ and $N_B$ denote the total number of particles of species A and B repsectively, $r_i$ and $r_j$ denote particle positions, and $\langle\cdot\rangle$ denotes a statistical average. 
 
-\includegraphics[width=0.90\textwidth]{sample_plot}
+Pair distribution functions can be obtained from numerical simulations using appropriate atomic-scale simulation methods. Molecular dynamics (MD) simulations and Monte-Carlo simulations (MC) are routinely used to compute the atomic structure of solids and liquids. In the context of this project, we focus on First-Principles Molecular Dynamics (FPMD), a molecular dynamics method in which atomic forces are computed from the solution of the full quantum mechanical problem of interacting electrons and ions \cite{CarParrinello}. This method is in principle free of adjustable parameters since it relies only on fundamental physical constants. A number of simulation codes are available for FPMD simulations. We consider here the Qbox code \cite{qboxcode} developed at UC Davis.
 
-Interpreting the above plot is simple, yet very powerful and meaningful. The graph in the figure represents a water molecule. In particular, it quantitatively provides the probability of finding a hydrogen atom given a hydrogen atom. Looking at the graph, certain inferences can be made such as given a reference hydrogen atom, the probability of finding another hydrogen atom is virtually 0 until a radius of about 1.4, at the point which the probability of finding the particle increases. As larger radii are examined, the curve levels out which indicates that the probability of finding another hydrogen atom is averaged. 
+The computation and visualization of pair distribution functions is usually performed using {\em ad hoc} programs that use as input the atomic positions from a molecular simulation, and produce as output the pair distribution function. The resulting data is then visualized using a graphics package such as e.g. gnuplot. An example of package that implements the computation of the functions (and defers their visualization to an external package) is the TRAVIS package\cite{travis}. 
 
+\begin{figure}
+\includegraphics[width=0.90\textwidth]{images/one_graph_HH}
+\caption{\label{fig:sample} Example of hydrogen-hydrogen (HH) pair distribution function in liquid water. The peaks indicate the presence of intra- and intermolecular correlations.}
+\end{figure}
+An example of pair distribution function is shown on Fig.\ref{fig:sample}.
+In this example, the pair distribution function represents the probability of finding a hydrogen atom at a given distance $r$ from a reference hydrogen atom. Looking at the graph, it is found that the probability of finding another hydrogen atom is virtually zero until a radius of about 1.4 \AA, at which point the probability of finding the particle increases. The large peak near $r=1.5$\AA  indicates the intra-molecular distance between hydrogen atoms located on the same molecule, whereas further peaks indicate the presence of H atoms on neighboring molecules. As larger radii are examined, the curve levels out which indicates that the (normalized) probability becomes constant. 
 
-In terms of the algorithm, the number of particles are measured between a radius \textit{r} and a delta radius, \textit{dr}. The correlation function is often calculated by finding the distances between all the particles and constructing the histogram based on the arrangement.
+The conventional approach described above for representing pair distribution functions lacks flexibility. It typically requires a complete re-analysis of the data if a researcher wants to focus on a specific sub-interval of a simulation and does not allow for interactive modification of parameters. Furthermore, it requires having a local copy of all simulation data, which makes comparisons of simulations with results of other researchers cumbersome. In this project, we develop a portable and interactive tool for the computation and representation of pair distribution functions. The tool includes the capability of accessing data remotely by downloading XML documents through the HTTP protocol, and also allows for dynamic analysis by interactive modification of the simulation interval being represented. 
 
-The resultant graph of the density of the molecules as a function of the radius is quite useful in understanding the molecular structure of substances as explained above. 
-
-The general algorithm can be summarized as follows:
-
-\begin{verbatim}
-    1. Choose a value for dr and a radius value of r
-    2. Count each particle that is at a distance of r and r + dr. 
-    (This is essentially finding all the particles around the reference 
-    particle arranged in a spherical shell).
-    3. Divide the total count by N,  the total number of particles in 
-    the given data.
-    4. ???? . Not sure about the remaining steps.
-    5. Then divide the number by 4 pi r^2 dr.    
-\end{verbatim}
-
-Another concept to mention here is the concept of \textit{folding}. When the molecular environment being considered is bounded, certain adjustments have to be made with respect to the distances of the atoms. In other words, if one atom is ``close to'' or ''on the boundaries'', an equivalent atom which is close to the reference atom has to be considered and the distance has to be \textit{folded or recalculated.} This is one of the main preprocessing step before performing the pairwise distance calculation around the reference particle (step 2). 
-
-(Sorry, I do not know how to descriptively describe the concept of folding in simple words, so any help would be appreciated). 
+\subsection*{Calculation of pair distributions}
+The algorithm used for the calculation of a pair distribution function $g_{AB}(r)$ evaluates the number of particles of species B located in a spherical shell centered on an atom A and defined by radii $r$ and $r+dr$. At a given time step of the simulation, the distances between all particles are first computed and then binned to form a histogram. The procedure is repeated for each time step, accumulating the histograms. The final histogram is then appropriately normalized to yield the pair distribution function.  
+Molecular simulations are often performed using {\em periodic boundary conditions} in which the simulation domain is repeated periodically in all three dimensions in order to approximate an infinitely extended system. Care must be taken when computing interatomic distances in the presence of periodic boundary conditions. The shortest distance between two atoms may not be the distance separating these atoms in the primitive domain, but possibly the distance to one of the periodically repeated images of a particle. This requires appropriately {\em folding} the distance between atoms before using it in the calculation of the pair distribution function. This folding procedure can be seen as a preprocessing step that precedes the calculation of the interatomic distance.

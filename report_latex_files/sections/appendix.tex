@@ -20,7 +20,8 @@ if __name__ == "__main__":
     output = output.split("\n")
     output = [x.strip() for x in output]
     output = [x for x in output if len(x) != 0]
-    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts.txt")
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, 
+    gc.rmax, gc.dr, "intermediate_files/cum_counts.txt")
     gofr_obj.process()
     print 'Done processing first input source...'
   
@@ -32,7 +33,8 @@ if __name__ == "__main__":
     output = output.split("\n")
     output = [x.strip() for x in output]
     output = [x for x in output if len(x) != 0]
-    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, gc.rmax, gc.dr, "intermediate_files/cum_counts2.txt")
+    gofr_obj = Gofr(output, gc.first_molecule_name, gc.second_molecule_name, 
+    gc.rmax, gc.dr, "intermediate_files/cum_counts2.txt")
     gofr_obj.process()
     print 'Done processing second input source...'
 
@@ -105,10 +107,14 @@ class UnitCell(object):
     self.anMatrix.append([x - y for x, y in zip(allVectors[1], allVectors[2])])
     self.anMatrix.append([x + y for x, y in zip(allVectors[2], allVectors[0])])
     self.anMatrix.append([x - y for x, y in zip(allVectors[2], allVectors[0])])
-    self.anMatrix.append([x + y + z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
-    self.anMatrix.append([x - y - z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
-    self.anMatrix.append([x + y - z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
-    self.anMatrix.append([x - y + z for x, y, z in zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x + y + z for x, y, z in 
+    zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x - y - z for x, y, z in 
+    zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x + y - z for x, y, z in 
+    zip(allVectors[0], allVectors[1], allVectors[2])])
+    self.anMatrix.append([x - y + z for x, y, z in 
+    zip(allVectors[0], allVectors[1], allVectors[2])])
     
     self.bnMatrix = []
     self.bnMatrix.append(bVectors[0])
@@ -120,10 +126,14 @@ class UnitCell(object):
     self.bnMatrix.append([x - y for x, y in zip(bVectors[1], bVectors[2])])
     self.bnMatrix.append([x + y for x, y in zip(bVectors[2], bVectors[0])])
     self.bnMatrix.append([x - y for x, y in zip(bVectors[2], bVectors[0])])
-    self.bnMatrix.append([x + y + z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
-    self.bnMatrix.append([x - y - z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
-    self.bnMatrix.append([x + y - z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
-    self.bnMatrix.append([x - y + z for x, y, z in zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x + y + z for x, y, z in 
+    zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x - y - z for x, y, z in 
+    zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x + y - z for x, y, z in 
+    zip(bVectors[0], bVectors[1], bVectors[2])])
+    self.bnMatrix.append([x - y + z for x, y, z in 
+    zip(bVectors[0], bVectors[1], bVectors[2])])
          
     self.an2h = []
     self.bn2h = []
@@ -201,7 +211,6 @@ import csv
 import gofr_config as gc
 import collections
 
-
 class Gofr(object):
   def __init__(self, xyzInput, name1, name2, rmax, dr, fileName):
     self.xyzInput = xyzInput
@@ -217,34 +226,25 @@ class Gofr(object):
     rmax = self.rmax
     dr = self.dr
     nconfig = 0
-    
     # This list holds the position of the atoms
     line_index = 0
-  
     # Store the file contents in the list
     file_content = self.xyzInput
-
     # Read the number of atoms in the first line
     number_atoms = int(file_content[line_index])
     # Corresponds to the first atom
     isp1 = [0] * number_atoms
     # Corresponds to the second atom
     isp2 = [0] * number_atoms
-    
     tau = [None] * number_atoms
     names_of_atoms = [None] * number_atoms
-    
     species_1_count = 0
     species_2_count = 0
-    
     line_index += 1
-  
     nbin = (int) (rmax / dr)
-  
     count = [0.0] * nbin
     omega = 0.0
     cum_counts = {}
-    
     # Loop through the file contents line by line
     while line_index < len(file_content):
       nconfig += 1
@@ -285,11 +285,13 @@ class Gofr(object):
           first_vector = tau[isp1[i]]
           second_vector = tau[isp2[j]]
           
-          difference_vector = [ai - bi for ai, bi in zip(first_vector, second_vector)]
+          difference_vector = [ai - bi for ai, bi in 
+          zip(first_vector, second_vector)]
           difference_vector = uc.fold_in_ws(difference_vector)
           scaled_vec = [x / dr for x in difference_vector]
           
-          length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 + scaled_vec[2] ** 2)
+          length_scaled_vec = sqrt(scaled_vec[0] ** 2 + scaled_vec[1] ** 2 
+          + scaled_vec[2] ** 2)
          
           k = (int) (length_scaled_vec + 0.5)
           if k < nbin:
@@ -356,8 +358,6 @@ class Gofr(object):
       print 'r, n = %s, %s' % (r, n)
     
 
-
-
 ##############################################################
 '''
 Filename: visualizer.py
@@ -373,7 +373,6 @@ import pprint
 import os.path
 import getopt
 import csv
-
 
 def handle_files(fp, source_file):
   fp = None
@@ -397,12 +396,10 @@ argc = len(sys.argv)
 input_source1 = sys.argv[1]
 input_source2 = ''
 
-
 # ./visualizer.py cum_counts.txt 
 # ./visualizer.py cum_counts.txt -x 5 -y 5
 # ./visualizer.py cum_counts.txt cum_counts2.txt
 # ./visualizer.py cum_counts.txt cum_counts2.txt -x 5 -y 5
-
 if argc > 2:
   if sys.argv[2] == '':
     input_source2 = ''
@@ -411,12 +408,6 @@ if argc > 2:
   # If it is a file
   elif ".txt" in sys.argv[2]:
     input_source2 = sys.argv[2]
-
-#print argc
-#print sys.argv
-
-
-#sys.exit(0)
 
 try:
   if input_source2 == '':
@@ -438,18 +429,9 @@ for o, a in opts:
         ylim=a
     else:
         print("Usage: %s -x 4 -y 4" % sys.argv[0])
-     
-#print ("X Bound : %s and Y bound: %s" % (xlim,ylim) )
-
-
-#print 'input_source1 = %s' % input_source1
-#print 'input_source2 = %s' % input_source2
-
 
 fp = None
 fp = handle_files(fp, input_source1)
-
-
 
 vis_data = []
 first_source_vals = {}
@@ -483,17 +465,14 @@ if input_source2 != '':
       if rownum != 0:
         try:
           key = row[0] + ',' + row[1]
-          tempList = [float(row[0]), float(row[1]), float(first_source_vals[key]), float(row[2]) ]
+          tempList = [float(row[0]), float(row[1]), 
+          float(first_source_vals[key]), float(row[2]) ]
           vis_data.append(tempList)
         except KeyError:
           continue
       rownum += 1
   finally:
     fp.close()
-
-#pprint.pprint(vis_data)
-#sys.exit(0)
-
 
 def seq(start, stop, step=1):
     n = int(round((stop - start)/float(step)))
@@ -519,28 +498,27 @@ class visualizer(object):
       tickValues = str(seq(0, float(self.data[-1][1]), 0.5))
     else:
       tickValues = str(seq(0, float(self.xlim), 0.5))
-    #print tickValues
 
     columnStringInterpolation = ''
     gr2Add = ''
     dataframeAdjust = ''
 
-
     if not self.twoInputFiles:
       columnStringInterpolation = "'columns': [1, 2]"
       gr2Add = "//columnsTable.addColumn('number', 'Gr2');"
       dataframeAdjust = r'''
-      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue)]);
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),
+      (right_gofr_1-left_gofr_1)/(rightValue - leftValue)]);
       '''
-
-
     else:
       columnStringInterpolation = "'columns': [1, 2, 3]"
       gr2Add = "columnsTable.addColumn('number', 'Gr2');"
       dataframeAdjust = r'''
       var right_gofr_2 = data.getValue(right_nconfigs[i], 3);
       var left_gofr_2 =  data.getValue(left_nconfigs[i], 3); 
-      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),(right_gofr_1-left_gofr_1)/(rightValue - leftValue),(right_gofr_2-left_gofr_2)/(rightValue - leftValue)]);
+      columnsTable.addRow([leftValue, data.getValue(left_nconfigs[i], 1),
+      (right_gofr_1-left_gofr_1)/(rightValue - leftValue),(right_gofr_2-left_gofr_2)
+      /(rightValue - leftValue)]);
       '''
 
     xAxisString = ''
@@ -560,17 +538,17 @@ class visualizer(object):
 
     boundsString = xAxisString + yAxisString
 
-
-
     htmlString = r"""
     <html>
       <head>
         <!--Load the AJAX API-->
-        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/
+        loader.js"></script>
         <script type="text/javascript">
 
           // Load the Visualization API and the controls package.
-          google.charts.load('current', {'packages':['corechart', 'controls', 'table']});
+          google.charts.load('current', {'packages':['corechart', 'controls', 
+          'table']});
 
           // Set a callback to run when the Google Visualization API is loaded.
           google.charts.setOnLoadCallback(drawDashboard);
@@ -584,7 +562,8 @@ class visualizer(object):
             var data = google.visualization.arrayToDataTable(%s);
 
             // Create a dashboard.
-            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
+            var dashboard = new google.visualization.Dashboard(document.
+            getElementById('dashboard_div'));
 
             var imageLink = document.getElementById('image_link');
             // Create a range slider, passing some options
@@ -631,8 +610,10 @@ class visualizer(object):
             // Draw the dashboard.
             dashboard.draw(data);
             
-            google.visualization.events.addListener(nConfigSlider, 'ready', setInitialState);
-            google.visualization.events.addListener(nConfigSlider, 'statechange', setInitialState);
+            google.visualization.events.addListener(
+            nConfigSlider, 'ready', setInitialState);
+            google.visualization.events.addListener(
+            nConfigSlider, 'statechange', setInitialState);
             
             function setInitialState() {
               // Temporary Filtered Table
@@ -649,8 +630,10 @@ class visualizer(object):
               
             
               // Corresponds to indices in original data Ex:- [5, 6, 7, 8, 9]
-              var left_nconfigs = data.getFilteredRows([{column : 0, value: leftValue}]);
-              var right_nconfigs = data.getFilteredRows([{column : 0, value: rightValue}]);
+              var left_nconfigs = data.getFilteredRows(
+              [{column : 0, value: leftValue}]);
+              var right_nconfigs = data.getFilteredRows(
+              [{column : 0, value: rightValue}]);
               
               for(var i = 0; i < left_nconfigs.length; i++) {
                 var right_gofr_1 = data.getValue(right_nconfigs[i], 2);
@@ -661,7 +644,8 @@ class visualizer(object):
               myLine.setDataTable(columnsTable);
               myLine.draw();
               
-              imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() + '">';
+              imageLink.innerHTML = '<img src="' + myLine.getChart().getImageURI() 
+              + '">';
               console.log(imageLink.innerHTML);
             }
             
@@ -705,30 +689,19 @@ class visualizer(object):
       str(gc.second_molecule_name)
       )
     # CURRENTLY X AND Y LIMITS ARE TAKEN OUT
-    #final_filename = "%s_%s_stepsize%s.html" % (gc.first_input_source, gc.second_input_source, gc.stepsize)
+    #final_filename = "%s_%s_stepsize%s.html" % 
+    #(gc.first_input_source, gc.second_input_source, gc.stepsize)
     final_filename = "test1.html"
     f = open(final_filename,'w+')
     f.write(htmlString)
 
-    
-
-
 nconfig = vis_data[-1][0]
-
 twoFiles = False
-
 if input_source2 != '':
   twoFiles = True
-
 vis_obj = visualizer(vis_data, nconfig, xlim, ylim, twoFiles) 
 vis_obj.generateVisualFile()
 print ('Done generating visual file!')
-
-
-
-
-
-
 
 
 \end{minted}
